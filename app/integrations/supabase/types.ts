@@ -37,112 +37,145 @@ export type Database = {
       }
       health_specialists: {
         Row: {
+          activities: string[] | null
           bio: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          description: string | null
           embedding: string | null
           id: string
-          location: string
-          name: string
+          location: string | null
+          name: string | null
+          programs: string[] | null
           services: string[] | null
-          specialty: string
+          specialty: string | null
         }
         Insert: {
+          activities?: string[] | null
           bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          description?: string | null
           embedding?: string | null
           id?: string
-          location: string
-          name: string
+          location?: string | null
+          name?: string | null
+          programs?: string[] | null
           services?: string[] | null
-          specialty: string
+          specialty?: string | null
         }
         Update: {
+          activities?: string[] | null
           bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          description?: string | null
           embedding?: string | null
           id?: string
-          location?: string
-          name?: string
+          location?: string | null
+          name?: string | null
+          programs?: string[] | null
           services?: string[] | null
-          specialty?: string
+          specialty?: string | null
         }
         Relationships: []
       }
       outdoor_clubs: {
         Row: {
           activities: string[] | null
+          bio: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
           description: string | null
           embedding: string | null
           id: string
-          location: string
-          name: string
+          location: string | null
+          name: string | null
+          programs: string[] | null
+          services: string[] | null
+          specialty: string | null
         }
         Insert: {
           activities?: string[] | null
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           embedding?: string | null
           id?: string
-          location: string
-          name: string
+          location?: string | null
+          name?: string | null
+          programs?: string[] | null
+          services?: string[] | null
+          specialty?: string | null
         }
         Update: {
           activities?: string[] | null
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           embedding?: string | null
           id?: string
-          location?: string
-          name?: string
+          location?: string | null
+          name?: string | null
+          programs?: string[] | null
+          services?: string[] | null
+          specialty?: string | null
         }
         Relationships: []
       }
       schools: {
         Row: {
+          activities: string[] | null
+          bio: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
           description: string | null
           embedding: string | null
           id: string
-          location: string
-          name: string
+          location: string | null
+          name: string | null
           programs: string[] | null
+          services: string[] | null
+          specialty: string | null
         }
         Insert: {
+          activities?: string[] | null
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           embedding?: string | null
           id?: string
-          location: string
-          name: string
+          location?: string | null
+          name?: string | null
           programs?: string[] | null
+          services?: string[] | null
+          specialty?: string | null
         }
         Update: {
+          activities?: string[] | null
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           embedding?: string | null
           id?: string
-          location?: string
-          name?: string
+          location?: string | null
+          name?: string | null
           programs?: string[] | null
+          services?: string[] | null
+          specialty?: string | null
         }
         Relationships: []
       }
@@ -179,19 +212,19 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          preferences: Json | null
+          preferences: Json
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          preferences?: Json | null
+          preferences: Json
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          preferences?: Json | null
+          preferences?: Json
           user_id?: string
         }
         Relationships: [
@@ -199,6 +232,35 @@ export type Database = {
             foreignKeyName: "user_preferences_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          user_metadata: Json | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          user_metadata?: Json | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -214,13 +276,9 @@ export type Database = {
           query_embedding: string
           match_threshold: number
           match_count: number
-          _table: string
-          _column: string
+          table_name: string
         }
-        Returns: {
-          id: string
-          similarity: number
-        }[]
+        Returns: Json
       }
     }
     Enums: {

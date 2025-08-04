@@ -72,6 +72,12 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
+  webpack: (config) => {
+    config.externals.push({
+      "node:buffer": "commonjs node:buffer",
+    });
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -1,6 +1,5 @@
-import { OpenAI } from "openai"
+import OpenAI from "openai"
 import { createClient } from "@/app/lib/supabase/server"
-import type { Database } from "@/app/integrations/supabase/types"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,51 +20,32 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
 export async function searchVectorDatabase<T>(
   query: string,
-  tableName: keyof Database["public"]["Tables"],
-  matchCount = 5,
+  tableName: string,
+  matchThreshold = 0.78,
+  matchCount = 10,
 ): Promise<T[]> {
   const supabase = createClient()
+  const match_threshold = matchThreshold
+  const match_count = matchCount
+
   try {
     const queryEmbedding = await generateEmbedding(query)
 
     const { data, error } = await supabase.rpc("match_documents", {
       query_embedding: JSON.stringify(queryEmbedding),
-      match_threshold: 0.78, // Adjust as needed
-      match_count: matchCount,
-      _table: tableName, // Pass table name to the RPC function
-      _column: "embedding", // Assuming the embedding column is named 'embedding'
+      match_threshold,
+      match_count,
+      table_name: tableName,
     })
 
     if (error) {
-      console.error(`Error searching vector database for ${tableName}:`, error)
-      throw new Error(`Failed to search ${tableName} in vector database.`)
+      console.error(`Error searching ${tableName}:`, error)
+      throw error
     }
 
-    // The RPC function returns a generic structure, we need to cast it
-    // and potentially fetch full data if the RPC only returns IDs/similarity
-    const resultsWithSimilarity = data as { id: string; similarity: number }[]
-
-    // Fetch full records based on IDs, maintaining order by similarity
-    if (resultsWithSimilarity.length > 0) {
-      const ids = resultsWithSimilarity.map((r) => r.id)
-      const { data: fullRecords, error: fetchError } = await supabase.from(tableName).select("*").in("id", ids)
-
-      if (fetchError) {
-        console.error(`Error fetching full records for ${tableName}:`, fetchError)
-        throw new Error(`Failed to fetch full records for ${tableName}.`)
-      }
-
-      // Re-sort the full records based on the similarity order from the RPC
-      const orderedRecords = resultsWithSimilarity
-        .map((result) => fullRecords?.find((record: any) => record.id === result.id))
-        .filter(Boolean) as T[]
-
-      return orderedRecords
-    }
-
-    return [] as T[]
+    return data as T[]
   } catch (error) {
     console.error("Error in searchVectorDatabase:", error)
-    throw error
+    throw new Error(`Failed to search ${tableName} in vector database.`)
   }
 }

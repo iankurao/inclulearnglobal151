@@ -1,102 +1,116 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart } from "recharts"
+import { Label, type LabelProps } from "@radix-ui/react-label"
+import { Slot } from "@radix-ui/react-slot"
+import {
+  type ChartConfig,
+  ChartContainer as RechartsChartContainer,
+  ChartTooltip as RechartsChartTooltip,
+  ChartTooltipContent as RechartsChartTooltipContent,
+} from "@tremor/react"
 
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { cn } from "@/app/lib/utils"
 
-const data = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-]
+const ChartContext = React.createContext<ChartConfig | null>(null)
 
-const Chart = () => {
-  const totalVisitors = React.useMemo(() => data.reduce((acc, curr) => acc + curr.visitors, 0), [])
+function useChart() {
+  const context = React.useContext(ChartContext)
 
-  return (
-    <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={{
-            visitors: {
-              label: "Visitors",
-            },
-            chrome: {
-              label: "Chrome",
-              color: "hsl(var(--chart-1))",
-            },
-            safari: {
-              label: "Safari",
-              color: "hsl(var(--chart-2))",
-            },
-            firefox: {
-              label: "Firefox",
-              color: "hsl(var(--chart-3))",
-            },
-            edge: {
-              label: "Edge",
-              color: "hsl(var(--chart-4))",
-            },
-            other: {
-              label: "Other",
-              color: "hsl(var(--chart-5))",
-            },
-          }}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-            <Pie
-              data={data}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              strokeWidth={5}
-              activeIndex={0}
-              activeShape={({ outerRadius = 0, fill, ...props }: any) => (
-                <g>
-                  <circle cx={props.cx} cy={props.cy} r={outerRadius + 10} fill={fill} stroke="none" />
-                  <path d={props.d} fill={fill} />
-                </g>
-              )}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                        <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
-                          {totalVisitors.toLocaleString()}
-                        </tspan>
-                        <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
-                          Visitors
-                        </tspan>
-                      </text>
-                    )
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground">Based on new visitors</div>
-      </CardFooter>
-    </Card>
-  )
+  if (!context) {
+    throw new Error("useChart must be used within a <ChartContainer />")
+  }
+
+  return context
 }
 
-export default Chart
+const ChartContainer = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsChartContainer> & {
+    config: ChartConfig
+  }
+>(({ config, className, children, ...props }, ref) => (
+  <ChartContext.Provider value={config}>
+    <RechartsChartContainer
+      ref={ref}
+      className={cn("flex h-[300px] w-full items-center justify-center overflow-hidden", className)}
+      {...props}
+    >
+      {children}
+    </RechartsChartContainer>
+  </ChartContext.Provider>
+))
+ChartContainer.displayName = "ChartContainer"
+
+const ChartTooltip = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsChartTooltip> & {
+    hideIndicator?: boolean
+    indicatorOnly?: boolean
+    className?: string
+  }
+>(({ hideIndicator = false, indicatorOnly = false, ...props }, ref) => (
+  <RechartsChartTooltip ref={ref} hideIndicator={hideIndicator} indicatorOnly={indicatorOnly} {...props} />
+))
+ChartTooltip.displayName = "ChartTooltip"
+
+const ChartTooltipContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsChartTooltipContent> & {
+    hideIndicator?: boolean
+    indicatorOnly?: boolean
+    className?: string
+  }
+>(({ hideIndicator = false, indicatorOnly = false, className, ...props }, ref) => (
+  <RechartsChartTooltipContent
+    ref={ref}
+    hideIndicator={hideIndicator}
+    indicatorOnly={indicatorOnly}
+    className={cn("rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs shadow-xl", className)}
+    {...props}
+  />
+))
+ChartTooltipContent.displayName = "ChartTooltipContent"
+
+const ChartLegend = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsChartTooltip> & {
+    hideIndicator?: boolean
+    indicatorOnly?: boolean
+    className?: string
+  }
+>(({ hideIndicator = false, indicatorOnly = false, ...props }, ref) => (
+  <RechartsChartTooltip ref={ref} hideIndicator={hideIndicator} indicatorOnly={indicatorOnly} {...props} />
+))
+ChartLegend.displayName = "ChartLegend"
+
+const ChartLegendContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsChartTooltipContent> & {
+    hideIndicator?: boolean
+    indicatorOnly?: boolean
+    className?: string
+  }
+>(({ hideIndicator = false, indicatorOnly = false, className, ...props }, ref) => (
+  <RechartsChartTooltipContent
+    ref={ref}
+    hideIndicator={hideIndicator}
+    indicatorOnly={indicatorOnly}
+    className={cn("rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs shadow-xl", className)}
+    {...props}
+  />
+))
+ChartLegendContent.displayName = "ChartLegendContent"
+
+const ChartLabel = React.forwardRef<
+  HTMLLabelElement,
+  LabelProps & {
+    asChild?: boolean
+  }
+>(({ className, asChild, ...props }, ref) => {
+  const Comp = asChild ? Slot : Label
+  return <Comp ref={ref} className={cn("text-sm font-medium text-muted-foreground", className)} {...props} />
+})
+ChartLabel.displayName = "ChartLabel"
+
+export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartLabel, useChart }
