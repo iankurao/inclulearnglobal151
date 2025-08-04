@@ -43,3 +43,4 @@ supabase/db/
 supabase/functions/
 supabase/migrations/
 supabase/seed.sql
+.env
