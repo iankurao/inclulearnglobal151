@@ -1,216 +1,97 @@
--- Enable pg_vector extension
-CREATE EXTENSION IF NOT EXISTS vector;
+-- This migration adds vector support to the database.
+-- It enables the `vector` extension and adds `embedding` columns to relevant tables.
 
--- Add embedding column to health_specialists table
-ALTER TABLE public.health_specialists
-ADD COLUMN embedding vector(1536); -- Assuming OpenAI's text-embedding-ada-002 which has 1536 dimensions
-ALTER TABLE public.health_specialists
-ADD COLUMN description_embedding VECTOR(1536); -- For OpenAI's text-embedding-ada-002
+-- Enable the `vector` extension
+CREATE EXTENSION IF NOT EXISTS "vector";
 
--- Add embedding column to schools table
-ALTER TABLE public.schools
-ADD COLUMN embedding vector(1536);
-ALTER TABLE public.schools
-ADD COLUMN description_embedding VECTOR(1536);
+-- Add embedding column to `health_specialists` table if it doesn't exist
+DO $$ BEGIN
+    ALTER TABLE public.health_specialists ADD COLUMN embedding VECTOR(1536);
+EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE 'column embedding already exists in health_specialists.';
+END $$;
 
--- Add embedding column to outdoor_clubs table
-ALTER TABLE public.outdoor_clubs
-ADD COLUMN embedding vector(1536);
-ALTER TABLE public.outdoor_clubs
-ADD COLUMN description_embedding VECTOR(1536);
+-- Add embedding column to `schools` table if it doesn't exist
+DO $$ BEGIN
+    ALTER TABLE public.schools ADD COLUMN embedding VECTOR(1536);
+EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE 'column embedding already exists in schools.';
+END $$;
 
--- Create a function for vector search on health_specialists
-CREATE OR REPLACE FUNCTION match_health_specialists (
-  query_embedding vector(1536),
-  match_threshold float,
-  match_count int
-)
-RETURNS TABLE (
-  id UUID,
-  name TEXT,
-  specialty TEXT,
-  location TEXT,
-  contact_info TEXT,
-  description TEXT,
-  services TEXT[],
-  qualifications TEXT[],
-  experience_years INT,
-  rating NUMERIC(2,1),
-  website TEXT,
-  email TEXT,
-  phone TEXT,
-  created_at TIMESTAMP WITH TIME ZONE,
-  updated_at TIMESTAMP WITH TIME ZONE,
-  similarity float
-)
-LANGUAGE plpgsql
-AS $$
-#variable_conflict use_column
-BEGIN
-  RETURN query
-  SELECT
-    id,
-    name,
-    specialty,
-    location,
-    contact_info,
-    description,
-    services,
-    qualifications,
-    experience_years,
-    rating,
-    website,
-    email,
-    phone,
-    created_at,
-    updated_at,
-    1 - (health_specialists.embedding <=> query_embedding) AS similarity
-  FROM
-    health_specialists
-  WHERE
-    1 - (health_specialists.embedding <=> query_embedding) > match_threshold
-  ORDER BY
-    similarity DESC
-  LIMIT match_count;
-END;
-$$;
-
--- Create a function for vector search on schools
-CREATE OR REPLACE FUNCTION match_schools (
-  query_embedding vector(1536),
-  match_threshold float,
-  match_count int
-)
-RETURNS TABLE (
-  id UUID,
-  name TEXT,
-  location TEXT,
-  specialization TEXT,
-  programs TEXT[],
-  contact_info TEXT,
-  description TEXT,
-  website TEXT,
-  email TEXT,
-  phone TEXT,
-  rating NUMERIC(2,1),
-  created_at TIMESTAMP WITH TIME ZONE,
-  updated_at TIMESTAMP WITH TIME ZONE,
-  similarity float
-)
-LANGUAGE plpgsql
-AS $$
-#variable_conflict use_column
-BEGIN
-  RETURN query
-  SELECT
-    id,
-    name,
-    location,
-    specialization,
-    programs,
-    contact_info,
-    description,
-    website,
-    email,
-    phone,
-    rating,
-    created_at,
-    updated_at,
-    1 - (schools.embedding <=> query_embedding) AS similarity
-  FROM
-    schools
-  WHERE
-    1 - (schools.embedding <=> query_embedding) > match_threshold
-  ORDER BY
-    similarity DESC
-  LIMIT match_count;
-END;
-$$;
-
--- Create a function for vector search on outdoor_clubs
-CREATE OR REPLACE FUNCTION match_outdoor_clubs (
-  query_embedding vector(1536),
-  match_threshold float,
-  match_count int
-)
-RETURNS TABLE (
-  id UUID,
-  name TEXT,
-  activity TEXT,
-  location TEXT,
-  schedule TEXT,
-  age_group TEXT,
-  contact_info TEXT,
-  description TEXT,
-  website TEXT,
-  email TEXT,
-  phone TEXT,
-  rating NUMERIC(2,1),
-  created_at TIMESTAMP WITH TIME ZONE,
-  updated_at TIMESTAMP WITH TIME ZONE,
-  similarity float
-)
-LANGUAGE plpgsql
-AS $$
-#variable_conflict use_column
-BEGIN
-  RETURN query
-  SELECT
-    id,
-    name,
-    activity,
-    location,
-    schedule,
-    age_group,
-    contact_info,
-    description,
-    website,
-    email,
-    phone,
-    rating,
-    created_at,
-    updated_at,
-    1 - (outdoor_clubs.embedding <=> query_embedding) AS similarity
-  FROM
-    outdoor_clubs
-  WHERE
-    1 - (outdoor_clubs.embedding <=> query_embedding) > match_threshold
-  ORDER BY
-    similarity DESC
-  LIMIT match_count;
-END;
-$$;
+-- Add embedding column to `outdoor_clubs` table if it doesn't exist
+DO $$ BEGIN
+    ALTER TABLE public.outdoor_clubs ADD COLUMN embedding VECTOR(1536);
+EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE 'column embedding already exists in outdoor_clubs.';
+END $$;
 
 -- Create a function for vector similarity search
 CREATE OR REPLACE FUNCTION public.match_documents (
-  query_embedding VECTOR(1536),
-  match_threshold FLOAT,
-  match_count INT,
-  _table TEXT,
-  _column TEXT
+  query_embedding vector(1536),
+  match_threshold float,
+  match_count int,
+  _table text,
+  _column text
 )
 RETURNS TABLE (
-  id UUID,
-  content TEXT,
-  similarity FLOAT
+  id uuid,
+  name text,
+  location text,
+  specialty text, -- For health_specialists
+  education_level text, -- For schools
+  activity_type text, -- For outdoor_clubs
+  contact_email text,
+  phone_number text,
+  description text,
+  similarity float
 )
 LANGUAGE plpgsql
 AS $$
-#variable_conflict use_column
 BEGIN
   RETURN QUERY EXECUTE format('
     SELECT
       id,
-      %I AS content,
-      1 - (%I <=> $1) AS similarity
+      name,
+      location,
+      %s, -- This will be specialty, education_level, or activity_type
+      contact_email,
+      phone_number,
+      description,
+      1 - (embedding <=> $1) AS similarity
     FROM
       public.%I
     WHERE
-      1 - (%I <=> $1) > $2
+      1 - (embedding <=> $1) > $2
     ORDER BY
-      %I <=> $1
-    LIMIT $3
-  ', _column, _column, _table, _column, _column)
+      similarity DESC
+    LIMIT $3',
+    CASE _table
+      WHEN 'health_specialists' THEN 'specialty'
+      WHEN 'schools' THEN 'education_level'
+      WHEN 'outdoor_clubs' THEN 'activity_type'
+      ELSE 'NULL' -- Fallback if table name doesn't match
+    END,
+    _table
+  )
   USING query_embedding, match_threshold, match_count;
+END;
+$$;
+
+-- Optional: Create a function to generate embeddings (if done directly in DB)
+-- This would typically call an external AI service via a Supabase Edge Function
+-- For demonstration, this is a placeholder.
+CREATE OR REPLACE FUNCTION public.generate_embedding(text_input TEXT)
+RETURNS VECTOR(1536)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  embedding_result VECTOR(1536);
+BEGIN
+  -- In a real scenario, this would call an external AI service (e.g., OpenAI)
+  -- via a Supabase Edge Function or a custom API.
+  -- For now, return a dummy embedding or raise an error if not implemented.
+  RAISE EXCEPTION 'Embedding generation function not implemented yet. Use external script.';
+  -- SELECT ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536) INTO embedding_result;
+  -- RETURN embedding_result;
 END;
 $$;

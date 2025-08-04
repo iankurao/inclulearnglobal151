@@ -1,20 +1,23 @@
--- This script is intended to be run after new data is inserted or existing data is updated
--- in tables that require vector embeddings.
--- It calls a Python script (generate_embeddings.py) to generate and update embeddings.
+-- This script is intended to be run manually or via a CI/CD pipeline
+-- after new data is added or existing data is updated in the tables.
+-- It calls the `generate_embedding` function (which would be a Supabase Edge Function
+-- or a custom function that interfaces with an embedding model)
+-- and updates the `embedding` column for relevant rows.
 
--- This is a conceptual script. In a real-world scenario, you would typically
--- trigger the Python script via a webhook, a background job, or a Supabase Edge Function
--- after data changes, rather than directly executing a Python script from SQL.
+-- Example for health_specialists table:
+UPDATE public.health_specialists
+SET embedding = generate_embedding(description)
+WHERE description IS NOT NULL AND embedding IS NULL;
 
--- Example of how you might conceptually trigger an update (not directly executable SQL):
--- SELECT http_post('your_edge_function_url/generate-embeddings', '{"table": "health_specialists", "column": "description"}');
+-- Example for schools table:
+UPDATE public.schools
+SET embedding = generate_embedding(description)
+WHERE description IS NOT NULL AND embedding IS NULL;
 
--- For manual execution or integration with a CI/CD pipeline, you would run the Python script directly:
--- python scripts/generate_embeddings.py
+-- Example for outdoor_clubs table:
+UPDATE public.outdoor_clubs
+SET embedding = generate_embedding(description)
+WHERE description IS NOT NULL AND embedding IS NULL;
 
--- The actual SQL part would be for creating the `match_documents` function if it's not already there,
--- or for any other database-side operations related to embeddings.
--- (The `match_documents` function is provided in `supabase/migrations/20250801000000_add_vector_support.sql`)
-
--- No direct SQL commands to execute the Python script here.
--- This file serves as a reminder/documentation for the embedding update process.
+-- You might want to add more sophisticated logic here,
+-- e.g., only update if description has changed, or process in batches.

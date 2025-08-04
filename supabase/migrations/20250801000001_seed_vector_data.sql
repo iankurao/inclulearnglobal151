@@ -20,21 +20,32 @@
 -- SET description_embedding = generate_embedding(description)
 -- WHERE description_embedding IS NULL;
 
--- For demonstration purposes, if you have a small dataset, you might manually insert
--- or update with dummy embeddings, but for production, use an external embedding service.
-
--- Example of inserting dummy embeddings for existing data (for testing purposes only):
--- UPDATE public.health_specialists
--- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
--- WHERE description_embedding IS NULL;
-
--- UPDATE public.schools
--- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
--- WHERE description_embedding IS NULL;
-
--- UPDATE public.outdoor_clubs
--- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
--- WHERE description_embedding IS NULL;
-
 -- In a real application, you would run the `scripts/generate_embeddings.py`
 -- script to populate these columns with actual embeddings.
+
+-- Example data for health_specialists
+INSERT INTO public.health_specialists (name, specialty, location, contact_email, phone_number, description)
+VALUES
+('Dr. Jane Doe', 'Pediatric Physical Therapist', 'Nairobi', 'jane.doe@example.com', '+254712345678', 'Specializes in early intervention and motor development for children with cerebral palsy and Down syndrome.'),
+('Mr. John Smith', 'Occupational Therapist', 'Mombasa', 'john.smith@example.com', '+254723456789', 'Focuses on sensory integration and daily living skills for children with autism spectrum disorder.'),
+('Ms. Emily White', 'Speech-Language Pathologist', 'Kisumu', 'emily.white@example.com', '+254734567890', 'Works with children and adults on communication disorders, including stuttering and articulation.'),
+('Dr. Alex Green', 'Developmental Pediatrician', 'Nairobi', 'alex.green@example.com', '+254745678901', 'Provides comprehensive developmental assessments and management plans for children with complex needs.');
+
+-- Example data for schools
+INSERT INTO public.schools (name, location, education_level, contact_email, phone_number, description)
+VALUES
+('Bright Minds Academy', 'Nairobi', 'Primary', 'info@brightminds.ke', '+254700112233', 'An inclusive primary school with dedicated special education needs support units and trained staff.'),
+('Coastal Learning Centre', 'Mombasa', 'Special Needs', 'admin@coastallearning.ke', '+254701223344', 'A specialized center offering individualized education programs for children with intellectual disabilities and learning difficulties.'),
+('Highland Inclusive School', 'Eldoret', 'Secondary', 'contact@highlandinclusive.ke', '+254702334455', 'Provides a mainstream curriculum with integrated support for students with physical disabilities and visual impairments.');
+
+-- Example data for outdoor_clubs
+INSERT INTO public.outdoor_clubs (name, activity_type, location, contact_email, phone_number, description)
+VALUES
+('Nairobi Nature Explorers', 'Nature Walks', 'Nairobi', 'explorers@example.com', '+254750111222', 'An outdoor club organizing accessible nature walks and birdwatching for all abilities, including wheelchair-friendly trails.'),
+('Mountain Adventurers Kenya', 'Hiking', 'Nakuru', 'adventures@example.com', '+254751222333', 'Offers guided hiking trips with adaptive equipment and support for individuals with mobility challenges.'),
+('Lake Victoria Kayaking Club', 'Kayaking', 'Kisumu', 'kayak@example.com', '+254752333444', 'Provides adaptive kayaking lessons and tours on Lake Victoria, welcoming participants of all physical abilities.');
+
+-- IMPORTANT: After inserting data, you must run the `scripts/generate_embeddings.py`
+-- or a similar process to populate the `embedding` columns.
+-- For example, if using the Python script:
+-- python scripts/generate_embeddings.py

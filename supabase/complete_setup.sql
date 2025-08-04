@@ -1,203 +1,205 @@
+-- This script combines all necessary SQL for a complete Supabase setup,
+-- including schema creation, RLS, and any necessary functions.
+
 -- Create the `public` schema if it doesn't exist (usually exists by default)
-CREATE SCHEMA IF NOT EXISTS public;
+-- CREATE SCHEMA public;
 
 -- Enable the `uuid-ossp` extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Enable the `vector` extension for vector similarity search
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS "vector";
 
--- Create the `health_specialists` table
-CREATE TABLE IF NOT EXISTS public.health_specialists (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+-- Create `profiles` table for user profiles
+CREATE TABLE public.profiles (
+    id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    username TEXT UNIQUE,
+    full_name TEXT,
+    avatar_url TEXT,
+    website TEXT,
+    CONSTRAINT username_length CHECK (LENGTH(username) >= 3)
+);
+
+-- Set up Row Level Security (RLS) for `profiles` table
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
+  FOR SELECT USING (TRUE);
+
+CREATE POLICY "Users can insert their own profile." ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile." ON public.profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Create `health_specialists` table
+CREATE TABLE public.health_specialists (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     name TEXT NOT NULL,
     specialty TEXT NOT NULL,
     location TEXT NOT NULL,
-    experience_years INT,
     contact_email TEXT,
     phone_number TEXT,
     description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    description_embedding VECTOR(1536) -- For OpenAI's text-embedding-ada-002
+    embedding VECTOR(1536) -- Assuming OpenAI's text-embedding-ada-002 dimension
 );
 
--- Create the `schools` table
-CREATE TABLE IF NOT EXISTS public.schools (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+-- Create `schools` table
+CREATE TABLE public.schools (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     name TEXT NOT NULL,
-    type TEXT NOT NULL, -- e.g., "Primary", "Secondary", "Special Needs School"
     location TEXT NOT NULL,
-    special_needs_support TEXT, -- e.g., "Autism Spectrum", "ADHD", "Learning Disabilities"
-    curriculum TEXT,
+    education_level TEXT NOT NULL, -- e.g., 'Primary', 'Secondary', 'Special Needs'
     contact_email TEXT,
     phone_number TEXT,
-    website TEXT,
     description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    description_embedding VECTOR(1536)
+    embedding VECTOR(1536)
 );
 
--- Create the `outdoor_clubs` table
-CREATE TABLE IF NOT EXISTS public.outdoor_clubs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+-- Create `outdoor_clubs` table
+CREATE TABLE public.outdoor_clubs (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     name TEXT NOT NULL,
-    activity_type TEXT NOT NULL, -- e.g., "Hiking", "Art Therapy", "Sports"
+    activity_type TEXT NOT NULL, -- e.g., 'Hiking', 'Camping', 'Nature Walks'
     location TEXT NOT NULL,
-    age_group TEXT, -- e.g., "Children", "Teens", "Adults", "All Ages"
-    schedule TEXT,
     contact_email TEXT,
     phone_number TEXT,
-    website TEXT,
     description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    description_embedding VECTOR(1536)
+    embedding VECTOR(1536)
 );
 
--- Create the `user_preferences` table
-CREATE TABLE IF NOT EXISTS public.user_preferences (
-    user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    preferred_specialty TEXT,
-    preferred_location TEXT,
-    preferred_school_type TEXT,
-    preferred_activity_type TEXT,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- Create `user_preferences` table
+CREATE TABLE public.user_preferences (
+    id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
+    preferred_specialties TEXT[],
+    preferred_locations TEXT[],
+    notification_settings JSONB DEFAULT '{}'::jsonb
 );
 
--- Create the `search_history` table
-CREATE TABLE IF NOT EXISTS public.search_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+-- Create `search_history` table
+CREATE TABLE public.search_history (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users ON DELETE CASCADE,
     query TEXT NOT NULL,
-    search_type TEXT, -- e.g., 'specialist', 'school', 'club'
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    search_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    results_count INT
 );
 
--- Create the `favorites` table
-CREATE TABLE IF NOT EXISTS public.favorites (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    resource_id UUID NOT NULL, -- ID of the favorited specialist, school, or club
+-- Create `favorites` table
+CREATE TABLE public.favorites (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+    resource_id UUID NOT NULL,
     resource_type TEXT NOT NULL, -- 'health_specialist', 'school', 'outdoor_club'
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE (user_id, resource_id, resource_type) -- Ensure a user can only favorite an item once
+    favorited_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE (user_id, resource_id, resource_type)
 );
 
 -- Create a function for vector similarity search
 CREATE OR REPLACE FUNCTION public.match_documents (
-  query_embedding VECTOR(1536),
-  match_threshold FLOAT,
-  match_count INT,
-  _table TEXT,
-  _column TEXT
+  query_embedding vector(1536),
+  match_threshold float,
+  match_count int,
+  _table text,
+  _column text
 )
 RETURNS TABLE (
-  id UUID,
-  content TEXT,
-  similarity FLOAT
+  id uuid,
+  name text,
+  location text,
+  specialty text, -- For health_specialists
+  education_level text, -- For schools
+  activity_type text, -- For outdoor_clubs
+  contact_email text,
+  phone_number text,
+  description text,
+  similarity float
 )
 LANGUAGE plpgsql
 AS $$
-#variable_conflict use_column
 BEGIN
   RETURN QUERY EXECUTE format('
     SELECT
       id,
-      %I AS content,
-      1 - (%I <=> $1) AS similarity
+      name,
+      location,
+      %s, -- This will be specialty, education_level, or activity_type
+      contact_email,
+      phone_number,
+      description,
+      1 - (embedding <=> $1) AS similarity
     FROM
       public.%I
     WHERE
-      1 - (%I <=> $1) > $2
+      1 - (embedding <=> $1) > $2
     ORDER BY
-      %I <=> $1
-    LIMIT $3
-  ', _column, _column, _table, _column, _column)
+      similarity DESC
+    LIMIT $3',
+    CASE _table
+      WHEN 'health_specialists' THEN 'specialty'
+      WHEN 'schools' THEN 'education_level'
+      WHEN 'outdoor_clubs' THEN 'activity_type'
+      ELSE 'NULL' -- Fallback if table name doesn't match
+    END,
+    _table
+  )
   USING query_embedding, match_threshold, match_count;
 END;
 $$;
 
--- Set up Row Level Security (RLS) for tables
-ALTER TABLE public.health_specialists ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.schools ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.outdoor_clubs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.search_history ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies for `health_specialists`
-CREATE POLICY "Enable read access for all users" ON public.health_specialists FOR SELECT USING (TRUE);
-CREATE POLICY "Enable insert for authenticated users" ON public.health_specialists FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Enable update for authenticated users" ON public.health_specialists FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Enable delete for authenticated users" ON public.health_specialists FOR DELETE USING (auth.role() = 'authenticated');
-
--- RLS Policies for `schools`
-CREATE POLICY "Enable read access for all users" ON public.schools FOR SELECT USING (TRUE);
-CREATE POLICY "Enable insert for authenticated users" ON public.schools FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Enable update for authenticated users" ON public.schools FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Enable delete for authenticated users" ON public.schools FOR DELETE USING (auth.role() = 'authenticated');
-
--- RLS Policies for `outdoor_clubs`
-CREATE POLICY "Enable read access for all users" ON public.outdoor_clubs FOR SELECT USING (TRUE);
-CREATE POLICY "Enable insert for authenticated users" ON public.outdoor_clubs FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Enable update for authenticated users" ON public.outdoor_clubs FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Enable delete for authenticated users" ON public.outdoor_clubs FOR DELETE USING (auth.role() = 'authenticated');
-
--- RLS Policies for `user_preferences`
-CREATE POLICY "Enable read access for own preferences" ON public.user_preferences FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Enable insert for own preferences" ON public.user_preferences FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Enable update for own preferences" ON public.user_preferences FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Enable delete for own preferences" ON public.user_preferences FOR DELETE USING (auth.uid() = user_id);
-
--- RLS Policies for `search_history`
-CREATE POLICY "Enable read access for own search history" ON public.search_history FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Enable insert for own search history" ON public.search_history FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Enable delete for own search history" ON public.search_history FOR DELETE USING (auth.uid() = user_id);
-
--- RLS Policies for `favorites`
-CREATE POLICY "Enable read access for own favorites" ON public.favorites FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Enable insert for own favorites" ON public.favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Enable delete for own favorites" ON public.favorites FOR DELETE USING (auth.uid() = user_id);
-
--- Seed initial data (optional, for demonstration/testing)
-INSERT INTO public.health_specialists (name, specialty, location, experience_years, contact_email, phone_number, description) VALUES
-('Dr. Jane Doe', 'Pediatrician', 'Nairobi', 10, 'jane.doe@example.com', '+254712345678', 'Experienced pediatrician specializing in neurodevelopmental disorders.'),
-('Mr. John Smith', 'Occupational Therapist', 'Mombasa', 7, 'john.smith@example.com', '+254723456789', 'Dedicated occupational therapist focusing on sensory integration.'),
-('Ms. Emily White', 'Speech Therapist', 'Kisumu', 5, 'emily.white@example.com', '+254734567890', 'Passionate speech therapist helping children with communication challenges.');
-
-INSERT INTO public.schools (name, type, location, special_needs_support, curriculum, contact_email, website, description) VALUES
-('Greenwood Academy', 'Primary School', 'Nairobi', 'Autism Spectrum, ADHD', 'CBC, Adapted Curriculum', 'info@greenwood.ac.ke', 'http://www.greenwood.ac.ke', 'An inclusive primary school with dedicated support units for various special needs.'),
-('Coastline Special School', 'Special Needs School', 'Mombasa', 'Intellectual Disabilities, Physical Disabilities', 'Individualized Education Programs (IEPs)', 'coastline@example.com', 'http://www.coastline.org', 'A specialized institution offering comprehensive education for children with severe disabilities.'),
-('Highlands Inclusive College', 'Secondary School', 'Nakuru', 'Learning Disabilities, Dyslexia', 'CBC, Remedial Classes', 'highlands@college.ke', 'http://www.highlands.ac.ke', 'A secondary school committed to providing an inclusive learning environment with strong academic support.');
-
-INSERT INTO public.outdoor_clubs (name, activity_type, location, age_group, schedule, contact_email, website, description) VALUES
-('Nature Explorers Club', 'Hiking, Nature Walks', 'Nairobi National Park', 'All Ages', 'Weekends', 'info@natureexplorers.org', 'http://www.natureexplorers.org', 'A club dedicated to exploring Kenya''s natural beauty through guided hikes and nature walks.'),
-('Art & Play Collective', 'Art Therapy, Sensory Play', 'Karen, Nairobi', 'Children (5-12)', 'Afternoons, weekdays', 'artplay@example.com', 'http://www.artplay.co.ke', 'Creative and sensory-rich activities for children with diverse needs.'),
-('Inclusive Sports League', 'Football, Basketball', 'Mombasa Sports Club', 'Teens (13-18)', 'Saturdays', 'sports@inclusiveleague.co.ke', 'http://www.inclusiveleague.co.ke', 'A league promoting inclusive sports for teenagers of all abilities.');
-
--- Update `updated_at` column automatically on row update
-CREATE OR REPLACE FUNCTION update_timestamp()
+-- Set up trigger for new user profiles
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'avatar_url');
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE TRIGGER update_health_specialists_timestamp
-BEFORE UPDATE ON public.health_specialists
-FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
-CREATE TRIGGER update_schools_timestamp
-BEFORE UPDATE ON public.schools
-FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+-- Set up trigger for updating user profiles
+CREATE OR REPLACE FUNCTION public.handle_user_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.profiles
+  SET
+    full_name = NEW.raw_user_meta_data->>'full_name',
+    avatar_url = NEW.raw_user_meta_data->>'avatar_url',
+    updated_at = NOW()
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE TRIGGER update_outdoor_clubs_timestamp
-BEFORE UPDATE ON public.outdoor_clubs
-FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
+CREATE TRIGGER on_auth_user_updated
+  AFTER UPDATE ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_user_update();
 
-CREATE TRIGGER update_user_preferences_timestamp
-BEFORE UPDATE ON public.user_preferences
-FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+-- Optional: Create a function to generate embeddings (if done directly in DB)
+-- This would typically call an external AI service via a Supabase Edge Function
+-- For demonstration, this is a placeholder.
+CREATE OR REPLACE FUNCTION public.generate_embedding(text_input TEXT)
+RETURNS VECTOR(1536)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  embedding_result VECTOR(1536);
+BEGIN
+  -- In a real scenario, this would call an external AI service (e.g., OpenAI)
+  -- via a Supabase Edge Function or a custom API.
+  -- For now, return a dummy embedding or raise an error if not implemented.
+  RAISE EXCEPTION 'Embedding generation function not implemented yet. Use external script.';
+  -- SELECT ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536) INTO embedding_result;
+  -- RETURN embedding_result;
+END;
+$$;

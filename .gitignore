@@ -53,4 +53,4 @@ supabase/functions/
 
 # misc
 *.pem
-.turbo
+.turbo/

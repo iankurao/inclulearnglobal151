@@ -1,101 +1,74 @@
-# Supabase CLI configuration file
-# Learn more about this file here: https://supabase.com/docs/guides/cli/config
-
 [project]
-# Project ID from Supabase Dashboard
-# e.g. 'aaaaaaaaaaaaaaaaaaaa'
-id = "your-project-ref" # Replace with your Supabase project reference
 name = "inclulearnglobal"
-db_url = "postgresql://postgres:[YOUR-PASSWORD]@db.your-project-ref.supabase.co:5432/postgres" # Replace with your database URL
-db_user = "postgres"
-db_password = "your-db-password" # Replace with your database password
-db_host = "db.your-project-ref.supabase.co" # Replace with your database host
-db_port = 5432
 db_name = "postgres"
-db_schemas = ["public", "storage", "graphql_public"]
+db_user = "postgres"
+db_password = ""
+db_host = "localhost"
+db_port = 5432
+db_url = ""
+db_schema = "public"
+db_migrations_path = "supabase/migrations"
+db_seed_path = "supabase/seed.sql"
 db_anon_role = "anon"
 db_authenticated_role = "authenticated"
-db_service_role_key = "your-service-role-key" # Replace with your Supabase service role key
-
-[db]
-# The database URL to connect to when running commands.
-# Can be overridden with the --db-url flag.
-# If not set, the CLI will use the URL from `supabase link` or `supabase init`.
-# url = "postgresql://postgres:password@localhost:54322/postgres"
-
-# The path to the migrations folder.
-migrations_path = "supabase/migrations"
-
-# The name of the database schema to use for the migrations.
-# This is useful if you are using a custom schema for your database.
-# schema = "public"
-
-# The name of the database role to use for the migrations.
-# This is useful if you are using a custom role for your database.
-# role = "postgres"
-
-# The maximum number of seconds to wait for a database connection.
-# connection_timeout = 5
-
-# The maximum number of retries for a database connection.
-# connection_retries = 3
-
-# The path to the file that contains the database seed data.
-# seed_path = "supabase/seed.sql"
-
-[functions]
-# The path to the functions folder.
-# path = "supabase/functions"
-
-[storage]
-# The path to the storage folder.
-# path = "supabase/storage"
-
-[realtime]
-# The path to the realtime folder.
-# path = "supabase/realtime"
-enabled = true
-
-[graphql]
-# The path to the GraphQL folder.
-# path = "supabase/graphql"
+db_service_role = "service_role"
+db_jwt_secret = ""
+db_jwt_expiry = 3600
+db_max_rows = 1000
+db_pool_size = 10
+db_connection_timeout = 5
+db_statement_timeout = 5000
+db_idle_timeout = 10
+db_log_level = "info"
+db_enable_ddl_commands = true
+db_enable_foreign_data_wrappers = false
+db_enable_http_functions = false
+db_enable_pg_net = false
+db_enable_pg_cron = false
+db_enable_pg_graphql = false
+db_enable_pg_stat_statements = false
+db_enable_pg_trgm = false
+db_enable_pg_vector = true
+db_enable_postgis = false
+db_enable_timescaledb = false
+db_enable_vault = false
+db_enable_wrappers = false
+db_enable_extensions = ["uuid-ossp", "vector"]
 
 [studio]
-# The port to use for the Supabase Studio.
-# port = 54323
 port = 8000
+host = "localhost"
+log_level = "info"
 
 [inbucket]
-# The port to use for the Inbucket email server.
-# port = 54324
 port = 5433
+host = "localhost"
+log_level = "info"
 
-[gotrue]
-# The port to use for the GoTrue authentication server.
-# port = 9999
+[graphql]
+port = 5434
+host = "localhost"
+log_level = "info"
 
-[api]
-# The port to use for the API server.
-# port = 8000
+[realtime]
+port = 5435
+host = "localhost"
+log_level = "info"
 
-[diff]
-# The path to the diff tool to use.
-# tool = "diff"
-
-[logs]
-# The path to the logs folder.
-# path = "supabase/logs"
-
-[telemetry]
-# Whether to enable telemetry.
-# enabled = true
+[storage]
+port = 5436
+host = "localhost"
+log_level = "info"
 
 [auth]
-site_url = "http://localhost:3000" # Replace with your deployed URL in production
-additional_redirect_urls = []
-mfa_enabled = false
-sms_provider = "twilio"
-email_provider = "supabase"
-email_otp_enabled = true
-email_change_enabled = true
-disable_signup = false
+port = 5437
+host = "localhost"
+log_level = "info"
+
+[functions]
+port = 5438
+host = "localhost"
+log_level = "info"
+
+[meta]
+version = "1.0.0"

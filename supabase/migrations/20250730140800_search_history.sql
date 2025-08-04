@@ -4,7 +4,8 @@ CREATE TABLE public.search_history (
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     query TEXT NOT NULL,
     search_type TEXT, -- e.g., 'specialist', 'school', 'club'
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    search_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    results_count INT
 );
 
 -- Set up Row Level Security (RLS) for `search_history`

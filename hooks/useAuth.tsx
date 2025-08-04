@@ -1,16 +1,16 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
+import { createClient } from "@/lib/supabase/client"
 
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
-  signOut: () => Promise<void>
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>
+  signOut: () => Promise<{ error: Error | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,20 +25,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null)
       setLoading(false)
-      if (event === "SIGNED_OUT") {
-        router.push("/auth")
-      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         router.push("/")
+      } else if (event === "SIGNED_OUT") {
+        router.push("/auth")
       }
     })
 
+    // Initial check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null)
       setLoading(false)
     })
 
     return () => {
-      authListener.subscription.unsubscribe()
+      authListener.unsubscribe()
     }
   }, [router, supabase])
 
@@ -46,27 +47,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
-    if (error) {
-      throw error
-    }
+    return { error }
   }
 
   const signUp = async (email: string, password: string) => {
     setLoading(true)
     const { error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
-    if (error) {
-      throw error
-    }
+    return { error }
   }
 
   const signOut = async () => {
     setLoading(true)
     const { error } = await supabase.auth.signOut()
     setLoading(false)
-    if (error) {
-      throw error
-    }
+    return { error }
   }
 
   return <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>{children}</AuthContext.Provider>

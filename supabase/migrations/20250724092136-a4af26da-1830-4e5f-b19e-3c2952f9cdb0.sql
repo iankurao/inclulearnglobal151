@@ -39,5 +39,5 @@ ON public.schools FOR DELETE
 USING (auth.uid() = user_id); -- Placeholder: replace 'user_id' with actual user_id column if exists
 
 -- This is an empty migration file.
--- It serves as a placeholder for future schema changes.
--- You can add SQL statements here to modify your database schema.
+-- It serves as a placeholder for the schools schema update.
+-- The actual schema creation is handled in `supabase/complete_setup.sql`.

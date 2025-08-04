@@ -26,6 +26,5 @@ CREATE POLICY "Users can delete their own favorites."
 ON public.favorites FOR DELETE
 USING (auth.uid() = user_id);
 
--- This is an empty migration file.
--- It serves as a placeholder for future schema changes.
--- You can add SQL statements here to modify your database schema.
+-- This migration file is now linked to the favorites schema update.
+-- The actual schema creation is handled in `supabase/complete_setup.sql`.

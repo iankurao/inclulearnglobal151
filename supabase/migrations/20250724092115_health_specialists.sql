@@ -13,6 +13,8 @@ CREATE TABLE public.health_specialists (
     website TEXT,
     email TEXT UNIQUE,
     phone TEXT,
+    contact_email TEXT,
+    phone_number TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,68 +14,65 @@ export default function AuthFormClient() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSignUp, setIsSignUp] = useState(false)
-  const [loading, setLoading] = useState(false)
   const { signIn, signUp } = useAuth()
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    try {
-      if (isSignUp) {
-        await signUp(email, password)
-        toast.success("Sign up successful! Please check your email to confirm your account.")
+    if (isSignUp) {
+      const { error } = await signUp(email, password)
+      if (error) {
+        toast.error(error.message)
       } else {
-        await signIn(email, password)
-        toast.success("Sign in successful!")
-        router.push("/")
+        toast.success("Sign up successful! Please check your email for a confirmation link.")
       }
-    } catch (error: any) {
-      toast.error(error.message || "An unexpected error occurred.")
-    } finally {
-      setLoading(false)
+    } else {
+      const { error } = await signIn(email, password)
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success("Signed in successfully!")
+      }
     }
   }
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-2xl">{isSignUp ? "Sign Up" : "Sign In"}</CardTitle>
-        <CardDescription>{isSignUp ? "Create an account to get started." : "Sign in to your account."}</CardDescription>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-center">{isSignUp ? "Sign Up" : "Sign In"}</CardTitle>
+        <CardDescription className="text-center">
+          {isSignUp ? "Create an account to get started" : "Enter your email and password to access your account"}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="grid gap-4">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="m@example.com"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
-          <div>
+          <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (isSignUp ? "Signing Up..." : "Signing In...") : isSignUp ? "Sign Up" : "Sign In"}
+          <Button type="submit" className="w-full">
+            {isSignUp ? "Sign Up" : "Sign In"}
           </Button>
         </form>
-        <div className="mt-4 text-center text-sm">
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-          <Button variant="link" onClick={() => setIsSignUp(!isSignUp)} className="p-0 h-auto">
-            {isSignUp ? "Sign In" : "Sign Up"}
-          </Button>
-        </div>
+        <Button variant="link" className="w-full" onClick={() => setIsSignUp(!isSignUp)}>
+          {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+        </Button>
       </CardContent>
     </Card>
   )
