@@ -13,11 +13,9 @@ interface AuthContextType {
   signOut: () => Promise<{ error: Error | null }>
 }
 
-// Provide a default context value that doesn't throw immediately.
-// This helps during server-side rendering where the context might not be fully initialized.
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true, // Default to loading true during SSR
+  loading: true,
   signIn: async () => ({ error: new Error("Auth not initialized") }),
   signUp: async () => ({ error: new Error("Auth not initialized") }),
   signOut: async () => ({ error: new Error("Auth not initialized") }),
@@ -77,9 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  // The error message "useAuth must be used within an AuthProvider" is now less likely to occur
-  // during SSR because createContext has a default value. This check is still good for client-side
-  // development if the component is rendered outside the provider.
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
