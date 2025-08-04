@@ -1,29 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/hooks/useAuth"
-import HealthSpecialistFlow from "@/components/HealthSpecialistFlow"
-import SchoolSearchFlow from "@/components/SchoolSearchFlow"
-import OutdoorClubsFlow from "@/components/OutdoorClubsFlow"
-import { ModeToggle } from "@/components/mode-toggle"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { useAuth } from "@/app/hooks/useAuth"
+import HealthSpecialistFlow from "@/app/components/HealthSpecialistFlow"
+import SchoolSearchFlow from "@/app/components/SchoolSearchFlow"
+import OutdoorClubsFlow from "@/app/components/OutdoorClubsFlow"
+import { ModeToggle } from "@/app/components/mode-toggle"
 import { LogOut, Home, Stethoscope, School, Mountain } from "lucide-react"
 import { toast } from "sonner"
+import { signOutAction } from "@/app/actions" // Import the sign out Server Action
 
 type FlowType = "home" | "specialists" | "schools" | "clubs"
 
 export default function MainAppClient() {
-  const { user, signOut, loading } = useAuth()
+  const { user, loading } = useAuth() // useAuth hook still handles client-side session
   const [currentFlow, setCurrentFlow] = useState<FlowType>("home")
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   const handleSignOut = async () => {
-    const { error } = await signOut()
-    if (error) {
-      toast.error(error.message)
+    setIsSigningOut(true)
+    const { success, message } = await signOutAction() // Call the Server Action
+    if (success) {
+      toast.success(message)
     } else {
-      toast.success("Signed out successfully!")
+      toast.error(message)
     }
+    setIsSigningOut(false)
   }
 
   const renderFlow = () => {
@@ -88,9 +92,9 @@ export default function MainAppClient() {
           </nav>
           <div className="flex items-center space-x-4">
             <ModeToggle />
-            <Button variant="ghost" onClick={handleSignOut} disabled={loading}>
+            <Button variant="ghost" onClick={handleSignOut} disabled={loading || isSigningOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              {loading ? "Signing out..." : "Sign Out"}
+              {isSigningOut ? "Signing out..." : "Sign Out"}
             </Button>
           </div>
         </div>

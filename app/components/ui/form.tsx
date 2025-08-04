@@ -2,27 +2,21 @@
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { Controller, FormProvider, useFormContext, type FieldPath, type FieldValues } from "react-hook-form"
-import type { ControllerProps } from "react-hook-form"
+import { Controller, FormProvider, useFormContext } from "react-hook-form"
 
-import { cn } from "@/lib/utils"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/app/lib/utils"
+import { Label } from "@/app/components/ui/label"
 
 const Form = FormProvider
 
-type FormFieldContextValue<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
-  name: TName
-}
+const FormFieldContext = React.createContext<any>({})
 
-const FormFieldContext = React.createContext<FormFieldContextValue | undefined>(undefined)
-
-function FormField<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ ...props }: ControllerProps<TFieldValues, TName>) {
+const FormField = <
+  TFieldValues extends Record<string, any> = Record<string, any>,
+  TName extends keyof TFieldValues & string = keyof TFieldValues & string,
+>({
+  ...props
+}: React.ComponentProps<typeof Controller<TFieldValues, TName>>) => {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
@@ -35,7 +29,7 @@ const useFormField = () => {
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState, formState } = useFormContext()
 
-  const fieldState = getFieldState(fieldContext?.name, formState)
+  const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
@@ -53,11 +47,7 @@ const useFormField = () => {
   }
 }
 
-type FormItemContextValue = {
-  id: string
-}
-
-const FormItemContext = React.createContext<FormItemContextValue | undefined>(undefined)
+const FormItemContext = React.createContext<any>({})
 
 const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {

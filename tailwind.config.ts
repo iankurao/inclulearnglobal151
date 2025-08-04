@@ -7,7 +7,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}", // Tremor module
+    "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
   theme: {
@@ -52,37 +52,6 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-        },
-        // Tremor colors
-        tremor: {
-          brand: {
-            faint: "hsl(var(--tremor-brand-faint))",
-            muted: "hsl(var(--tremor-brand-muted))",
-            subtle: "hsl(var(--tremor-brand-subtle))",
-            DEFAULT: "hsl(var(--tremor-brand))",
-            emphasis: "hsl(var(--tremor-brand-emphasis))",
-            inverted: "hsl(var(--tremor-brand-inverted))",
-          },
-          background: {
-            pattern: "hsl(var(--tremor-background-pattern))",
-            muted: "hsl(var(--tremor-background-muted))",
-            subtle: "hsl(var(--tremor-background-subtle))",
-            DEFAULT: "hsl(var(--tremor-background))",
-            emphasis: "hsl(var(--tremor-background-emphasis))",
-          },
-          border: {
-            DEFAULT: "hsl(var(--tremor-border))",
-          },
-          ring: {
-            DEFAULT: "hsl(var(--tremor-ring))",
-          },
-          content: {
-            subtle: "hsl(var(--tremor-content-subtle))",
-            DEFAULT: "hsl(var(--tremor-content))",
-            emphasis: "hsl(var(--tremor-content-emphasis))",
-            strong: "hsl(var(--tremor-content-strong))",
-            inverted: "hsl(var(--tremor-content-inverted))",
-          },
         },
       },
       borderRadius: {

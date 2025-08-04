@@ -1,0 +1,3 @@
+-- This is an empty migration file.
+-- It serves as a placeholder for the health specialists schema update.
+-- The actual schema creation is handled in `supabase/complete_setup.sql`.

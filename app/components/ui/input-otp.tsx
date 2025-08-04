@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { OTPInput, OTPInputContext } from "input-otp"
+import { OTPInput, Slot, type OTPInputProps } from "input-otp"
 import { Minus } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/app/lib/utils"
 
-const InputOTP = React.forwardRef<React.ElementRef<typeof OTPInput>, React.ComponentPropsWithoutRef<typeof OTPInput>>(
+const InputOTP = React.forwardRef<React.ElementRef<typeof OTPInput>, OTPInputProps>(
   ({ className, containerClassName, ...props }, ref) => (
     <OTPInput
       ref={ref}
@@ -24,31 +24,20 @@ const InputOTPGroup = React.forwardRef<React.ElementRef<"div">, React.ComponentP
 InputOTPGroup.displayName = "InputOTPGroup"
 
 const InputOTPSlot = React.forwardRef<
-  React.ElementRef<"div">,
-  React.ComponentPropsWithoutRef<"div"> & { index: number }
->(({ index, className, ...props }, ref) => {
-  const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, has } = inputOTPContext.slots[index]
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "relative flex h-9 w-9 items-center justify-center border-y border-r border-input text-sm shadow-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md",
-        has && "z-10 ring-1 ring-ring",
-        className,
-      )}
-      {...props}
-    >
-      {char}
-      {has && (
-        <div className={cn("absolute inset-0 flex items-center justify-center", has && "animate-in fade-in")}>
-          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
-        </div>
-      )}
-    </div>
-  )
-})
+  React.ElementRef<typeof Slot>,
+  React.ComponentPropsWithoutRef<typeof Slot> & { index: number }
+>(({ index, className, ...props }, ref) => (
+  <Slot
+    ref={ref}
+    index={index}
+    className={cn(
+      "relative flex h-10 w-10 items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md",
+      "focus-within:z-10 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-background",
+      className,
+    )}
+    {...props}
+  />
+))
 InputOTPSlot.displayName = "InputOTPSlot"
 
 const InputOTPSeparator = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(

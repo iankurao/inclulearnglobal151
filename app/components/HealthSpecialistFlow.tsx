@@ -2,11 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/app/components/ui/input"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Textarea } from "@/app/components/ui/textarea"
+import { Label } from "@/app/components/ui/label"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { searchHealthSpecialists, addHealthSpecialist } from "@/app/actions" // Import Server Actions

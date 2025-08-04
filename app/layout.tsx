@@ -4,13 +4,12 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { AuthProvider } from "@/hooks/useAuth"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "IncluLearn Global",
-  description: "Connecting Families with Special Needs Resources in Kenya",
+  description: "Connecting special needs resources in Kenya",
     generator: 'v0.dev'
 }
 
@@ -23,7 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <AuthProvider>{children}</AuthProvider>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

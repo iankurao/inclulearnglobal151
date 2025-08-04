@@ -1,6 +1,6 @@
 import { OpenAI } from "openai"
-import { createClient } from "@/lib/supabase/server"
-import type { Database } from "@/integrations/supabase/types"
+import { createClient } from "@/app/lib/supabase/server"
+import type { Database } from "@/app/integrations/supabase/types"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

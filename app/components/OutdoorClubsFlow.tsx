@@ -2,11 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/app/components/ui/input"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Textarea } from "@/app/components/ui/textarea"
+import { Label } from "@/app/components/ui/label"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { searchOutdoorClubs, addOutdoorClub } from "@/app/actions" // Import Server Actions
@@ -95,7 +95,7 @@ export default function OutdoorClubsFlow() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by activity, location, or description (e.g., 'hiking Nairobi adaptive sports')"
+            placeholder="Search by activities, location, or description (e.g., 'hiking Nairobi nature walks')"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -160,7 +160,7 @@ export default function OutdoorClubsFlow() {
                   id="activities"
                   value={newClub.activities}
                   onChange={(e) => setNewClub({ ...newClub, activities: e.target.value })}
-                  placeholder="e.g., hiking, swimming, art therapy"
+                  placeholder="e.g., hiking, camping, bird watching"
                 />
               </div>
               <div className="space-y-2">

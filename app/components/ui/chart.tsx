@@ -1,66 +1,102 @@
 "use client"
 
 import * as React from "react"
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  Bar,
-  BarChart,
-  Pie,
-  PieChart,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts"
+import { TrendingUp } from "lucide-react"
+import { Label, Pie, PieChart } from "recharts"
 
-import { cn } from "@/lib/utils"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
 
-interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[]
-  type: "line" | "bar" | "pie"
-  dataKeys: { name: string; color: string }[]
-  xAxisKey?: string
-  yAxisKey?: string
-  width?: string | number
-  height?: string | number
+const data = [
+  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
+  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
+  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
+  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
+  { browser: "other", visitors: 90, fill: "var(--color-other)" },
+]
+
+const Chart = () => {
+  const totalVisitors = React.useMemo(() => data.reduce((acc, curr) => acc + curr.visitors, 0), [])
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Pie Chart</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={{
+            visitors: {
+              label: "Visitors",
+            },
+            chrome: {
+              label: "Chrome",
+              color: "hsl(var(--chart-1))",
+            },
+            safari: {
+              label: "Safari",
+              color: "hsl(var(--chart-2))",
+            },
+            firefox: {
+              label: "Firefox",
+              color: "hsl(var(--chart-3))",
+            },
+            edge: {
+              label: "Edge",
+              color: "hsl(var(--chart-4))",
+            },
+            other: {
+              label: "Other",
+              color: "hsl(var(--chart-5))",
+            },
+          }}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Pie
+              data={data}
+              dataKey="visitors"
+              nameKey="browser"
+              innerRadius={60}
+              strokeWidth={5}
+              activeIndex={0}
+              activeShape={({ outerRadius = 0, fill, ...props }: any) => (
+                <g>
+                  <circle cx={props.cx} cy={props.cy} r={outerRadius + 10} fill={fill} stroke="none" />
+                  <path d={props.d} fill={fill} />
+                </g>
+              )}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                        <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
+                          {totalVisitors.toLocaleString()}
+                        </tspan>
+                        <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
+                          Visitors
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2 font-medium leading-none">
+          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+        </div>
+        <div className="text-muted-foreground">Based on new visitors</div>
+      </CardFooter>
+    </Card>
+  )
 }
 
-const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
-  ({ className, data, type, dataKeys, xAxisKey, yAxisKey, width = "100%", height = 300, ...props }, ref) => {
-    const ChartComponent = type === "line" ? LineChart : type === "bar" ? BarChart : PieChart
-    const DataComponent = type === "line" ? Line : Bar
-
-    return (
-      <div ref={ref} className={cn("w-full", className)} {...props}>
-        <ResponsiveContainer width={width} height={height}>
-          <ChartComponent data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            {xAxisKey && <XAxis dataKey={xAxisKey} />}
-            {yAxisKey && <YAxis dataKey={yAxisKey} />}
-            <Tooltip />
-            <Legend />
-            {dataKeys.map((key) =>
-              type === "pie" ? (
-                <Pie key={key.name} dataKey={key.name} nameKey="name" fill={key.color} outerRadius={80} label />
-              ) : (
-                <DataComponent
-                  key={key.name}
-                  type={type === "line" ? "monotone" : undefined}
-                  dataKey={key.name}
-                  stroke={key.color}
-                  fill={key.color}
-                />
-              ),
-            )}
-          </ChartComponent>
-        </ResponsiveContainer>
-      </div>
-    )
-  },
-)
-Chart.displayName = "Chart"
-
-export { Chart }
+export default Chart

@@ -41,52 +41,38 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          embedding: string | null
           id: string
           location: string
           name: string
-          profile_picture_url: string | null
           services: string[] | null
           specialty: string
-          user_id: string | null
-          embedding: string | null
         }
         Insert: {
           bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          embedding?: string | null
           id?: string
           location: string
           name: string
-          profile_picture_url?: string | null
           services?: string[] | null
           specialty: string
-          user_id?: string | null
-          embedding?: string | null
         }
         Update: {
           bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          embedding?: string | null
           id?: string
           location?: string
           name?: string
-          profile_picture_url?: string | null
           services?: string[] | null
           specialty?: string
-          user_id?: string | null
-          embedding?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "health_specialists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       outdoor_clubs: {
         Row: {
@@ -95,11 +81,10 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           description: string | null
+          embedding: string | null
           id: string
           location: string
           name: string
-          user_id: string | null
-          embedding: string | null
         }
         Insert: {
           activities?: string[] | null
@@ -107,11 +92,10 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           location: string
           name: string
-          user_id?: string | null
-          embedding?: string | null
         }
         Update: {
           activities?: string[] | null
@@ -119,21 +103,12 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           location?: string
           name?: string
-          user_id?: string | null
-          embedding?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "outdoor_clubs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       schools: {
         Row: {
@@ -141,49 +116,35 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           description: string | null
+          embedding: string | null
           id: string
           location: string
-          logo_url: string | null
           name: string
           programs: string[] | null
-          user_id: string | null
-          embedding: string | null
         }
         Insert: {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           location: string
-          logo_url?: string | null
           name: string
           programs?: string[] | null
-          user_id?: string | null
-          embedding?: string | null
         }
         Update: {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           location?: string
-          logo_url?: string | null
           name?: string
           programs?: string[] | null
-          user_id?: string | null
-          embedding?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "schools_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       search_history: {
         Row: {
@@ -243,24 +204,6 @@ export type Database = {
           },
         ]
       }
-      users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -276,9 +219,7 @@ export type Database = {
         }
         Returns: {
           id: string
-          content: string
           similarity: number
-          metadata: Json
         }[]
       }
     }
@@ -291,17 +232,74 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[keyof Database & "public"]
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
-export type Tables<TableName extends keyof PublicSchema["Tables"] = keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][TableName]["Row"]
+export type Tables<
+  PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] & PublicSchema["Views"]) | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    ? (PublicSchema["Tables"] & PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
-export type Enums<EnumName extends keyof PublicSchema["Enums"] = keyof PublicSchema["Enums"]> =
-  PublicSchema["Enums"][EnumName]
+export type TablesInsert<
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
-export type HealthSpecialist = Tables<"health_specialists">
-export type School = Tables<"schools">
-export type OutdoorClub = Tables<"outdoor_clubs">
-export type Favorite = Tables<"favorites">
-export type SearchHistory = Tables<"search_history">
-export type UserPreference = Tables<"user_preferences">
+export type TablesUpdate<
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends keyof PublicSchema["Enums"] | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
