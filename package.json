@@ -91,5 +91,6 @@
     "eslint-config-next": "14.2.5",
     "postcss": "^8.5",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.0.0"
 }
