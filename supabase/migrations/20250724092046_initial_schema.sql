@@ -37,3 +37,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.

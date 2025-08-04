@@ -1,1 +1,165 @@
-project_id = "wdrdwlaultocyolczcas"
+# Supabase CLI configuration file
+# For more details, see https://supabase.com/docs/reference/cli/config
+
+[project]
+# Project ID (e.g. 'your-project-ref')
+id = "inclulearnglobal101main"
+
+# Path to the directory containing your Supabase migrations
+migrations_path = "supabase/migrations"
+
+# Path to the directory containing your Supabase functions
+functions_path = "supabase/functions"
+
+# Path to the directory containing your Supabase seed data
+seed_path = "supabase/seed.sql"
+
+# Path to the directory containing your Supabase volumes
+volumes_path = "supabase/volumes"
+
+# Path to the directory containing your Supabase tests
+tests_path = "supabase/tests"
+
+# Path to the directory containing your Supabase types
+types_path = "supabase/types"
+
+# Path to the directory containing your Supabase storage objects
+storage_path = "supabase/storage"
+
+# Path to the directory containing your Supabase GraphQL schema
+graphql_path = "supabase/graphql"
+
+# Path to the directory containing your Supabase dashboard extensions
+dashboard_path = "supabase/dashboard"
+
+# Path to the directory containing your Supabase UI extensions
+ui_path = "supabase/ui"
+
+# Path to the directory containing your Supabase hooks
+hooks_path = "supabase/hooks"
+
+# Path to the directory containing your Supabase triggers
+triggers_path = "supabase/triggers"
+
+# Path to the directory containing your Supabase policies
+policies_path = "supabase/policies"
+
+# Path to the directory containing your Supabase RLS policies
+rls_path = "supabase/rls"
+
+# Path to the directory containing your Supabase database functions
+db_functions_path = "supabase/db_functions"
+
+# Path to the directory containing your Supabase database views
+db_views_path = "supabase/db_views"
+
+# Path to the directory containing your Supabase database materialized views
+db_materialized_views_path = "supabase/db_materialized_views"
+
+# Path to the directory containing your Supabase database tables
+db_tables_path = "supabase/db_tables"
+
+# Path to the directory containing your Supabase database types
+db_types_path = "supabase/db_types"
+
+# Path to the directory containing your Supabase database enums
+db_enums_path = "supabase/db_enums"
+
+# Path to the directory containing your Supabase database extensions
+db_extensions_path = "supabase/db_extensions"
+
+# Path to the directory containing your Supabase database roles
+db_roles_path = "supabase/db_roles"
+
+# Path to the directory containing your Supabase database schemas
+db_schemas_path = "supabase/db_schemas"
+
+# Path to the directory containing your Supabase database foreign data wrappers
+db_fdw_path = "supabase/db_fdw"
+
+# Path to the directory containing your Supabase database foreign tables
+db_foreign_tables_path = "supabase/db_foreign_tables"
+
+# Path to the directory containing your Supabase database foreign servers
+db_foreign_servers_path = "supabase/db_foreign_servers"
+
+# Path to the directory containing your Supabase database user mappings
+db_user_mappings_path = "supabase/db_user_mappings"
+
+# Path to the directory containing your Supabase database publications
+db_publications_path = "supabase/db_publications"
+
+# Path to the directory containing your Supabase database subscriptions
+db_subscriptions_path = "supabase/db_subscriptions"
+
+# Path to the directory containing your Supabase database event triggers
+db_event_triggers_path = "supabase/db_event_triggers"
+
+# Path to the directory containing your Supabase database row security policies
+db_row_security_policies_path = "supabase/db_row_security_policies"
+
+# Path to the directory containing your Supabase database policies
+db_policies_path = "supabase/db_policies"
+
+# Path to the directory containing your Supabase database roles
+db_roles_path = "supabase/db_roles"
+
+# Path to the directory containing your Supabase database schemas
+db_schemas_path = "supabase/db_schemas"
+
+# Path to the directory containing your Supabase database foreign data wrappers
+db_fdw_path = "supabase/db_fdw"
+
+# Path to the directory containing your Supabase database foreign tables
+db_foreign_tables_path = "supabase/db_foreign_tables"
+
+# Path to the directory containing your Supabase database foreign servers
+db_foreign_servers_path = "supabase/db_foreign_servers"
+
+# Path to the directory containing your Supabase database user mappings
+db_user_mappings_path = "supabase/db_user_mappings"
+
+# Path to the directory containing your Supabase database publications
+db_publications_path = "supabase/db_publications"
+
+# Path to the directory containing your Supabase database subscriptions
+db_subscriptions_path = "supabase/db_subscriptions"
+
+# Path to the directory containing your Supabase database event triggers
+db_event_triggers_path = "supabase/db_event_triggers"
+
+# Path to the directory containing your Supabase database row security policies
+db_row_security_policies_path = "supabase/db_row_security_policies"
+
+# Path to the directory containing your Supabase database policies
+db_policies_path = "supabase/db_policies"
+
+# Path to the directory containing your Supabase database roles
+db_roles_path = "supabase/db_roles"
+
+# Path to the directory containing your Supabase database schemas
+db_schemas_path = "supabase/db_schemas"
+
+# Path to the directory containing your Supabase database foreign data wrappers
+db_fdw_path = "supabase/db_fdw"
+
+# Path to the directory containing your Supabase database foreign tables
+db_foreign_tables_path = "supabase/db_foreign_tables"
+
+# Path to the directory containing your Supabase database foreign servers
+db_foreign_servers_path = "supabase/db_foreign_servers"
+
+# Path to the directory containing your Supabase database user mappings
+db_user_mappings_path = "supabase/db_user_mappings"
+
+# Path to the directory containing your Supabase database publications
+db_publications_path = "supabase/db_publications"
+
+# Path to the directory containing your Supabase database subscriptions
+db_subscriptions_path = "supabase/db_subscriptions"
+
+# Path to the directory containing your Supabase database event triggers
+db_event_triggers_path = "supabase/db_event_triggers"
+
+# Path to the directory containing your Supabase database row security policies
+db_row_security_policies_path = "supabase/db_row_security_policies"

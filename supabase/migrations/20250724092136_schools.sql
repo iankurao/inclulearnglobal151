@@ -179,3 +179,8 @@ INSERT INTO schools (
   'Premium international school offering Cambridge curriculum with comprehensive learning support services for students with diverse needs.',
   ARRAY['Science Labs', 'Art Studios', 'Music Rooms', 'Swimming Pool', 'Sports Complex', 'Library']
 );
+
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.

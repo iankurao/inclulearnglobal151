@@ -1,37 +1,42 @@
--- Update health specialists with embeddings (example - you would run this after generating embeddings)
--- This is a template - actual embeddings would come from the Python script
+-- This script is intended to be run after `generate_embeddings.py`
+-- It assumes the `embedding` column already exists and is of type `vector(1536)`
+-- The Python script will handle the actual updates.
+-- This SQL file serves as a placeholder for any manual SQL operations
+-- related to embeddings if needed, e.g., creating the column if it doesn't exist.
 
--- Update existing health specialists with sample embeddings
-UPDATE health_specialists 
-SET embedding = '[0.1, 0.2, 0.3, 0.4, 0.5]'::vector
-WHERE name = 'Dr. Sarah Mwangi';
+-- Example: Add vector column if it doesn't exist (run once)
+-- ALTER TABLE health_specialists ADD COLUMN embedding vector(1536);
+-- ALTER TABLE schools ADD COLUMN embedding vector(1536);
+-- ALTER TABLE outdoor_clubs ADD COLUMN embedding vector(1536);
 
--- Create function to update embeddings from JSON data
-CREATE OR REPLACE FUNCTION update_embeddings_from_json(
-    table_name text,
-    json_data jsonb
-) RETURNS void AS $$
-DECLARE
-    item jsonb;
-BEGIN
-    FOR item IN SELECT * FROM jsonb_array_elements(json_data)
-    LOOP
-        IF table_name = 'health_specialists' THEN
-            UPDATE health_specialists 
-            SET embedding = (item->>'embedding')::vector
-            WHERE name = item->>'name';
-        ELSIF table_name = 'schools' THEN
-            UPDATE schools 
-            SET embedding = (item->>'embedding')::vector  
-            WHERE name = item->>'name';
-        ELSIF table_name = 'outdoor_clubs' THEN
-            UPDATE outdoor_clubs
-            SET embedding = (item->>'embedding')::vector
-            WHERE name = item->>'name';
-        END IF;
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-
--- Example usage (you would call this with actual JSON data from Python script):
--- SELECT update_embeddings_from_json('health_specialists', '[{"name": "Dr. Sarah Mwangi", "embedding": [0.1, 0.2, ...]}]'::jsonb);
+-- Example: Create a function for similarity search (if not already done by Supabase)
+-- CREATE OR REPLACE FUNCTION match_documents (
+--   query_embedding vector(1536),
+--   match_threshold float,
+--   match_count int,
+--   table_name text
+-- )
+-- RETURNS TABLE (
+--   id uuid,
+--   content text,
+--   similarity float
+-- )
+-- LANGUAGE plpgsql
+-- AS $$
+-- #variable_conflict use_column
+-- BEGIN
+--   RETURN query EXECUTE format('
+--     SELECT
+--       id,
+--       description AS content, -- or other relevant text column
+--       1 - (embedding <=> %L) AS similarity
+--     FROM
+--       %I
+--     WHERE
+--       1 - (embedding <=> %L) > %L
+--     ORDER BY
+--       similarity DESC
+--     LIMIT %L
+--   ', query_embedding, table_name, query_embedding, match_threshold, match_count);
+-- END;
+-- $$;

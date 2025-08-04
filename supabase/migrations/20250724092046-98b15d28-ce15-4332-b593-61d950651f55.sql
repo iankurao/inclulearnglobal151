@@ -1,3 +1,8 @@
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.
+
 -- Create profiles table for additional user information
 CREATE TABLE public.profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,

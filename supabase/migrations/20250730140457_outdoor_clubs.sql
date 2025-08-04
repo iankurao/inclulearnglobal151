@@ -101,3 +101,8 @@ INSERT INTO outdoor_clubs (
   'Adventure club providing outdoor challenges and team building for youth with and without disabilities. Emphasis on building confidence and friendships.',
   ARRAY['Physical assessment', 'Emergency contact', 'Adventure experience preferred but not required']
 );
+
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.

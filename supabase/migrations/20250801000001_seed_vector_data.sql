@@ -1,3 +1,8 @@
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.
+
 -- Insert sample schools data
 INSERT INTO schools (name, location, description, specialties, fees, rating, age_range, contact_email, contact_phone, accessibility_features, therapy_services) VALUES
 ('Sunshine Special School', 'Nairobi', 'Premier inclusive education with specialized therapy programs and individualized learning plans', ARRAY['Autism', 'ADHD', 'Learning Disabilities'], 'KSh 85,000/term', 4.8, '3-18 years', 'info@sunshinespecial.co.ke', '+254 711 123456', ARRAY['Wheelchair accessible', 'Sensory rooms', 'Adaptive technology'], ARRAY['Speech therapy', 'Occupational therapy', 'Behavioral therapy']),

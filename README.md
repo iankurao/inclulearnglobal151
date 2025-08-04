@@ -1,30 +1,39 @@
-# inclulearnglobal101main
+# IncluLearn Global
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+This is a Next.js application for IncluLearn Global, a platform connecting users with special needs resources in Kenya.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/duncanian42-8369s-projects/v0-inclulearnglobal101main)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/cxTDM1hozhu)
+## Features
 
-## Overview
+- User authentication (Sign In/Sign Up)
+- Search and browse Health Specialists
+- Search and browse Special Needs Schools
+- Search and browse Inclusive Outdoor Clubs
+- Responsive design
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## Technologies Used
 
-## Deployment
+- Next.js (App Router)
+- React
+- Tailwind CSS
+- Shadcn/ui
+- Supabase (for authentication and database)
+- Lucide React Icons
 
-Your project is live at:
+## Setup and Installation
 
-**[https://vercel.com/duncanian42-8369s-projects/v0-inclulearnglobal101main](https://vercel.com/duncanian42-8369s-projects/v0-inclulearnglobal101main)**
+1.  **Clone the repository:**
+    \`\`\`bash
+    git clone https://github.com/iankurao/inclulearnglobal151.git
+    cd inclulearnglobal151
+    \`\`\`
 
-## Build your app
+2.  **Install dependencies:**
+    \`\`\`bash
+    pnpm install
+    \`\`\`
 
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/cxTDM1hozhu](https://v0.dev/chat/projects/cxTDM1hozhu)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+3.  **Set up Supabase:**
+    - Create a new Supabase project.
+    - Get your `SUPABASE_URL` and `SUPABASE_ANON_KEY` from your Supabase project settings (API section).
+    - Set up the database schema using the SQL scripts in the `supabase/migrations` directory. You can run these directly in your Supabase SQL editor or use the Supabase CLI.
+    - Create a `.env.local` file in the root of your project and add your Supabase credentials:

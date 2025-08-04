@@ -32,3 +32,8 @@ CREATE POLICY "Users can update own preferences" ON user_preferences
 
 CREATE POLICY "Users can delete own preferences" ON user_preferences
   FOR DELETE USING (auth.uid() = user_id);
+
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.

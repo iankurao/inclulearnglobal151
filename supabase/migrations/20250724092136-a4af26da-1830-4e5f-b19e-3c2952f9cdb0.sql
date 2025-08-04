@@ -1,3 +1,8 @@
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.
+
 -- Fix search path for update function
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER 
