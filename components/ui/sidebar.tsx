@@ -1,5 +1,7 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -9,7 +11,7 @@ import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -545,6 +547,13 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   }[]
 }
 
+interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
+  items: {
+    href: string
+    title: string
+  }[]
+}
+
 export function CustomSidebar({ className, items, ...props }: SidebarProps) {
   const pathname = usePathname()
 
@@ -561,6 +570,28 @@ export function CustomSidebar({ className, items, ...props }: SidebarProps) {
           )}
         >
           {item.icon && <span className="mr-2">{item.icon}</span>}
+          {item.title}
+        </Link>
+      ))}
+    </nav>
+  )
+}
+
+export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+  const pathname = usePathname()
+
+  return (
+    <nav className={cn("flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1", className)} {...props}>
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            pathname === item.href ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline",
+            "justify-start",
+          )}
+        >
           {item.title}
         </Link>
       ))}
