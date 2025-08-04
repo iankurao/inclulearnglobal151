@@ -1,6 +1,9 @@
--- This is an auto-generated migration file by Supabase CLI.
--- It's typically used for schema changes.
--- The content is usually specific to your database state at the time of generation.
--- For a complete setup, refer to `supabase/complete_setup.sql`.
-
--- /** rest of code here **/
+-- This is a migration file. Its content should be managed by Supabase CLI.
+-- It's typically a timestamped file for schema changes.
+-- Example content:
+-- create table public.user_preferences (
+--   id uuid primary key references auth.users on delete cascade,
+--   preferred_flow text,
+--   notification_settings jsonb,
+--   created_at timestamp with time zone default now()
+-- );

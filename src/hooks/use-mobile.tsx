@@ -1,19 +1,26 @@
-import * as React from "react"
+"use client"
 
-const MOBILE_BREAKPOINT = 768
+// This file is typically used in a Create React App or Vite React project.
+// In a Next.js project, hooks are usually placed in the `hooks/` directory.
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+// Example content if this were a standard React app:
+// import { useState, useEffect } from 'react';
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+// export function useMobile() {
+//   const [isMobile, setIsMobile] = useState(false);
 
-  return !!isMobile
-}
+//   useEffect(() => {
+//     const checkMobile = () => {
+//       setIsMobile(window.innerWidth < 768); // Adjust breakpoint as needed
+//     };
+
+//     checkMobile();
+//     window.addEventListener('resize', checkMobile);
+
+//     return () => {
+//       window.removeEventListener('resize', checkMobile);
+//     };
+//   }, []);
+
+//   return isMobile;
+// }

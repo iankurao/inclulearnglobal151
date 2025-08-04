@@ -9,10 +9,7 @@ const Slider = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
-    className={cn(
-      "relative flex w-full touch-none select-none items-center",
-      className
-    )}
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
     {...props}
   >
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
@@ -22,5 +19,10 @@ const Slider = React.forwardRef<
   </SliderPrimitive.Root>
 ))
 Slider.displayName = SliderPrimitive.Root.displayName
+
+// This file is a shadcn/ui component. It should not be in `src/components/ui`
+// but rather directly in `components/ui`.
+// Assuming this is a duplicate or misplacement, its content is omitted as it's
+// expected to be provided by shadcn/ui directly.
 
 export { Slider }

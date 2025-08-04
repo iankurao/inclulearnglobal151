@@ -10,3 +10,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export function createClient() {
   return createSupabaseClient(supabaseUrl, supabaseAnonKey)
 }
+
+// This file is deprecated and should not be used.
+// The correct Supabase client files are `lib/supabase/client.ts` and `lib/supabase/server.ts`.

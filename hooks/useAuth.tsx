@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null)
       setLoading(false)
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRSHED") {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         router.push("/")
       } else if (event === "SIGNED_OUT") {
         router.push("/auth")

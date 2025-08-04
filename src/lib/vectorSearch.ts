@@ -1,91 +1,54 @@
-// Generate embeddings using HuggingFace API (free tier)
-export async function generateEmbedding(text: string): Promise<number[]> {
-  try {
-    // For demo purposes, we'll use a simple text-to-vector conversion
-    // In production, you'd use a proper embedding service
-    const response = await fetch(
-      "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          inputs: text,
-          options: { wait_for_model: true },
-        }),
-      },
-    )
+// This file is typically used in a Create React App or Vite React project.
+// In a Next.js project, vector search logic is usually placed in `lib/vectorSearch.ts`.
 
-    if (!response.ok) {
-      // Fallback to simple hash-based embedding for demo
-      return generateSimpleEmbedding(text)
-    }
+// Example content if this were a standard React app:
+// import { createClient } from '@supabase/supabase-js';
+// import OpenAI from 'openai';
 
-    const embedding = await response.json()
-    return Array.isArray(embedding[0]) ? embedding[0] : embedding
-  } catch (error) {
-    console.error("Error generating embedding:", error)
-    return generateSimpleEmbedding(text)
-  }
-}
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
-// Simple fallback embedding generation
-function generateSimpleEmbedding(text: string): number[] {
-  const embedding = new Array(384).fill(0)
-  for (let i = 0; i < text.length && i < 384; i++) {
-    embedding[i] = text.charCodeAt(i) / 255 - 0.5
-  }
-  return embedding
-}
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// const openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
 
-// Create search query from form data
-export function createSearchQuery(formData: any, category: string): string {
-  const parts = []
+// export async function generateEmbedding(text: string) {
+//   const response = await openai.embeddings.create({
+//     model: "text-embedding-ada-002",
+//     input: text,
+//   });
+//   return response.data[0].embedding;
+// }
 
-  if (formData.childAge) parts.push(`child age ${formData.childAge}`)
-  if (formData.disabilityType?.length) parts.push(formData.disabilityType.join(" "))
-  if (formData.therapyType?.length) parts.push(formData.therapyType.join(" "))
-  if (formData.schoolType) parts.push(formData.schoolType)
-  if (formData.activityType?.length) parts.push(formData.activityType.join(" "))
-  if (formData.interests?.length) parts.push(formData.interests.join(" "))
-  if (formData.location) parts.push(formData.location)
-  if (formData.supportNeeds?.length) parts.push(formData.supportNeeds.join(" "))
-  if (formData.languagePreference?.length) parts.push(formData.languagePreference.join(" "))
+// export async function searchHealthSpecialists(query: string) {
+//   const embedding = await generateEmbedding(query);
+//   const { data, error } = await supabase.rpc('match_health_specialists', {
+//     query_embedding: embedding,
+//     match_threshold: 0.78, // Adjust as needed
+//     match_count: 10,
+//   });
+//   if (error) console.error('Error searching health specialists:', error);
+//   return data;
+// }
 
-  return parts.join(" ")
-}
+// export async function searchSchools(query: string) {
+//   const embedding = await generateEmbedding(query);
+//   const { data, error } = await supabase.rpc('match_schools', {
+//     query_embedding: embedding,
+//     match_threshold: 0.78, // Adjust as needed
+//     match_count: 10,
+//   });
+//   if (error) console.error('Error searching schools:', error);
+//   return data;
+// }
 
-// Calculate match percentage from similarity score
-export function calculateMatchPercentage(similarity: number): number {
-  return Math.round(similarity * 100)
-}
-
-// Generate AI reasoning for recommendations
-export function generateAIReasoning(item: any, searchQuery: string, similarity: number): string {
-  const matchPercentage = calculateMatchPercentage(similarity)
-
-  const reasons = []
-
-  if (item.location && searchQuery.toLowerCase().includes(item.location.toLowerCase())) {
-    reasons.push(`located in your preferred area (${item.location})`)
-  }
-
-  if (item.specialty && searchQuery.toLowerCase().includes(item.specialty.toLowerCase())) {
-    reasons.push(`specializes in ${item.specialty}`)
-  }
-
-  if (item.type && searchQuery.toLowerCase().includes(item.type.toLowerCase())) {
-    reasons.push(`offers ${item.type} services`)
-  }
-
-  if (matchPercentage > 80) {
-    reasons.push("excellent match for your requirements")
-  } else if (matchPercentage > 60) {
-    reasons.push("good match for your needs")
-  } else {
-    reasons.push("suitable option based on your criteria")
-  }
-
-  return `This is a ${matchPercentage}% match because it ${reasons.join(", ")}.`
-}
+// export async function searchOutdoorClubs(query: string) {
+//   const embedding = await generateEmbedding(query);
+//   const { data, error } = await supabase.rpc('match_outdoor_clubs', {
+//     query_embedding: embedding,
+//     match_threshold: 0.78, // Adjust as needed
+//     match_count: 10,
+//   });
+//   if (error) console.error('Error searching outdoor clubs:', error);
+//   return data;
+// }

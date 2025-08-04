@@ -1,21 +1,21 @@
--- This script is intended to be run manually or as part of a CI/CD pipeline
--- after new data is added or existing data is updated in the tables.
--- It assumes the 'generate_embeddings.py' script has been run to populate
--- the 'vector_embedding' column.
+-- This script is intended to be run manually or via a tool that can execute SQL.
+-- It assumes the `generate_embeddings.py` script has already populated the `vector_embedding` columns.
+-- This SQL script is primarily for demonstrating how to update embeddings if needed directly via SQL,
+-- but the Python script is the primary method for initial generation.
 
--- Example: Update embeddings for a specific health specialist
+-- Example: Update a single health specialist's embedding (replace with actual data)
 -- UPDATE health_specialists
--- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- SET vector_embedding = '[0.1, 0.2, 0.3, ...]' -- Replace with actual embedding array
 -- WHERE id = 'some-specialist-id';
 
--- Example: Update embeddings for a specific school
+-- Example: Update a single school's embedding (replace with actual data)
 -- UPDATE schools
--- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- SET vector_embedding = '[0.4, 0.5, 0.6, ...]' -- Replace with actual embedding array
 -- WHERE id = 'some-school-id';
 
--- Example: Update embeddings for a specific outdoor club
+-- Example: Update a single outdoor club's embedding (replace with actual data)
 -- UPDATE outdoor_clubs
--- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- SET vector_embedding = '[0.7, 0.8, 0.9, ...]' -- Replace with actual embedding array
 -- WHERE id = 'some-club-id';
 
 -- Function to search for similar documents based on vector embedding
@@ -27,7 +27,3 @@
 --   match_count := 10,
 --   table_name := 'health_specialists'
 -- );
-
--- Note: For bulk updates or initial population, it's recommended to use
--- the Python script 'generate_embeddings.py' which automates this process
--- by fetching data, generating embeddings via OpenAI, and updating Supabase.

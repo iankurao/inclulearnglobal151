@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRight, MoreHorizontal } from "lucide-react"
+import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { Slot } from "@radix-ui/react-slot"
+
 import { cn } from "@/lib/utils"
 
 const Breadcrumb = React.forwardRef<
@@ -10,16 +11,7 @@ const Breadcrumb = React.forwardRef<
   React.ComponentPropsWithoutRef<"nav"> & {
     separator?: React.ReactNode
   }
->(({ separator, ...props }, ref) => (
-  <nav ref={ref} aria-label="breadcrumb" {...props}>
-    {React.Children.map(props.children, (child, index) => (
-      <React.Fragment key={index}>
-        {child}
-        {index < React.Children.count(props.children) - 1 && <BreadcrumbSeparator>{separator}</BreadcrumbSeparator>}
-      </React.Fragment>
-    ))}
-  </nav>
-))
+>(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />)
 Breadcrumb.displayName = "Breadcrumb"
 
 const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<"ol">>(
@@ -53,29 +45,69 @@ const BreadcrumbLink = React.forwardRef<
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
-const BreadcrumbSeparator = React.forwardRef<HTMLLIElement, React.ComponentPropsWithoutRef<"li">>(
-  ({ className, children, ...props }, ref) => (
-    <li ref={ref} role="presentation" aria-hidden="true" className={cn("[&>svg]:size-3.5", className)} {...props}>
-      {children ?? <ChevronRight />}
-    </li>
-  ),
-)
-BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
-
-const BreadcrumbEllipsis = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<"span">>(
+const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<"span">>(
   ({ className, ...props }, ref) => (
     <span
       ref={ref}
-      role="presentation"
-      aria-hidden="true"
-      className={cn("flex h-9 w-9 items-center justify-center", className)}
+      role="link"
+      aria-disabled="true"
+      aria-current="page"
+      className={cn("font-normal text-foreground", className)}
       {...props}
-    >
-      <MoreHorizontal className="h-4 w-4" />
-      <span className="sr-only">More</span>
-    </span>
+    />
   ),
+)
+BreadcrumbPage.displayName = "BreadcrumbPage"
+
+const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentProps<typeof ChevronRightIcon>) => (
+  <li role="presentation" aria-hidden="true" className={cn("[&>svg]:size-3.5", className)} {...props}>
+    {children ?? <ChevronRightIcon />}
+  </li>
+)
+BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
+
+const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<typeof DotsHorizontalIcon>) => (
+  <span
+    role="presentation"
+    aria-hidden="true"
+    className={cn("flex h-9 w-9 items-center justify-center", className)}
+    {...props}
+  >
+    <DotsHorizontalIcon className="h-4 w-4" />
+    <span className="sr-only">More pages</span>
+  </span>
 )
 BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
 
-export { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbEllipsis }
+export {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+}
+
+// Placeholder for DotsHorizontalIcon if not imported from @radix-ui/react-icons
+// In a real shadcn/ui setup, this would be imported.
+function DotsHorizontalIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+      <circle cx="5" cy="12" r="1" />
+    </svg>
+  )
+}

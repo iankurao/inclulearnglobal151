@@ -1,11 +1,10 @@
-import { createClient } from "@supabase/supabase-js"
-import type { Database } from "./types"
+// This file is typically used in a Create React App or Vite React project.
+// In a Next.js project, the Supabase client is usually initialized in `lib/supabase/client.ts`.
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Example content if this were a standard React app:
+// import { createClient } from '@supabase/supabase-js';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing Supabase environment variables")
-}
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+// export const supabase = createClient(supabaseUrl, supabaseAnonKey);

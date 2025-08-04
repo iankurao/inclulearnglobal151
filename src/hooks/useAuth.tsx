@@ -1,88 +1,67 @@
 "use client"
 
-import type React from "react"
+// This file is typically used in a Create React App or Vite React project.
+// In a Next.js project, authentication logic is often handled directly in server components
+// or with client-side Supabase client in client components.
+// The `useAuth` hook provided in the `hooks/` directory is the correct one for Next.js.
 
-import { createContext, useContext, useEffect, useState } from "react"
-import type { User, Session } from "@supabase/supabase-js"
-import { supabase } from "@/integrations/supabase/client"
+// Example content if this were a standard React app:
+// import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+// import { createClient } from '@supabase/supabase-js';
 
-interface AuthContextType {
-  user: User | null
-  session: Session | null
-  loading: boolean
-  signUp: (email: string, password: string, fullName: string) => Promise<any>
-  signIn: (email: string, password: string) => Promise<any>
-  signOut: () => Promise<void>
-}
+// const supabase = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// );
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+// interface AuthContextType {
+//   user: any | null;
+//   loading: boolean;
+//   signInWithOAuth: (provider: 'google' | 'github') => Promise<void>;
+//   signOut: () => Promise<void>;
+// }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+// const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+// export const AuthProvider = ({ children }: { children: ReactNode }) => {
+//   const [user, setUser] = useState<any | null>(null);
+//   const [loading, setLoading] = useState(true);
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+//   useEffect(() => {
+//     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+//       setUser(session?.user || null);
+//       setLoading(false);
+//     });
 
-    return () => subscription.unsubscribe()
-  }, [])
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       setUser(session?.user || null);
+//       setLoading(false);
+//     });
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
-    })
-    return { data, error }
-  }
+//     return () => {
+//       authListener.subscription.unsubscribe();
+//     };
+//   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { data, error }
-  }
+//   const signInWithOAuth = async (provider: 'google' | 'github') => {
+//     await supabase.auth.signInWithOAuth({ provider });
+//   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-  }
+//   const signOut = async () => {
+//     await supabase.auth.signOut();
+//   };
 
-  const value = {
-    user,
-    session,
-    loading,
-    signUp,
-    signIn,
-    signOut,
-  }
+//   return (
+//     <AuthContext.Provider value={{ user, loading, signInWithOAuth, signOut }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
-}
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (context === undefined) {
+//     throw new Error('useAuth must be used within an AuthProvider');
+//   }
+//   return context;
+// };

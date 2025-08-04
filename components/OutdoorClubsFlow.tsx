@@ -1,91 +1,157 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, MapPin, Activity } from "lucide-react"
-import { performVectorSearch } from "@/lib/vectorSearch"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search, MapPin, Users, Star } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAuth } from "@/hooks/useAuth"
+import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-
-interface OutdoorClub {
-  id: string
-  name: string
-  location: string
-  description: string
-  activities_offered: string
-  contact_email: string
-}
+import type { OutdoorClub } from "@/integrations/supabase/types"
 
 export default function OutdoorClubsFlow() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const { user } = useAuth()
+  const supabase = createClient()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [location, setLocation] = useState("")
+  const [activity, setActivity] = useState("")
   const [clubs, setClubs] = useState<OutdoorClub[]>([])
   const [loading, setLoading] = useState(false)
 
   const handleSearch = async () => {
     setLoading(true)
-    setClubs([])
     try {
-      const results = await performVectorSearch(searchQuery, "outdoor_clubs", "description")
-      setClubs(results as OutdoorClub[])
-      if (results.length === 0) {
-        toast.info("No outdoor clubs found matching your search.")
+      let query = supabase.from("outdoor_clubs").select("*")
+
+      if (searchTerm) {
+        query = query.ilike("name", `%${searchTerm}%`)
       }
-    } catch (error) {
-      console.error("Failed to search outdoor clubs:", error)
-      toast.error("Failed to perform search. Please try again.")
+      if (location) {
+        query = query.ilike("location", `%${location}%`)
+      }
+      if (activity) {
+        query = query.ilike("activities_offered", `%${activity}%`)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        throw error
+      }
+      setClubs(data || [])
+      toast.success(`Found ${data?.length || 0} clubs.`)
+    } catch (error: any) {
+      toast.error(`Error searching: ${error.message}`)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleFavorite = async (clubId: string) => {
+    if (!user) {
+      toast.error("You need to be logged in to favorite clubs.")
+      return
+    }
+    try {
+      const { data, error } = await supabase.from("favorites").insert({
+        user_id: user.id,
+        resource_id: clubId,
+        resource_type: "outdoor_club",
+      })
+      if (error) {
+        throw error
+      }
+      toast.success("Club added to favorites!")
+    } catch (error: any) {
+      toast.error(`Error adding to favorites: ${error.message}`)
+    }
+  }
+
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="flex h-full flex-col p-4">
+      <Card className="mb-4">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" /> Search Outdoor Clubs
-          </CardTitle>
+          <CardTitle>Find Outdoor Clubs</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="grid gap-4 md:grid-cols-3">
           <Input
-            placeholder="e.g., 'hiking club for visually impaired in Rift Valley' or 'adaptive sports club'"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Search by name or keyword"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            prefix={<Search className="h-4 w-4 text-gray-500" />}
           />
-          <Button onClick={handleSearch} disabled={loading}>
-            {loading ? "Searching..." : "Search"}
+          <Input
+            placeholder="Location (e.g., Rift Valley)"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            prefix={<MapPin className="h-4 w-4 text-gray-500" />}
+          />
+          <Select value={activity} onValueChange={setActivity}>
+            <SelectTrigger>
+              <Users className="mr-2 h-4 w-4 text-gray-500" />
+              <SelectValue placeholder="Select Activity" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Hiking">Hiking</SelectItem>
+              <SelectItem value="Camping">Camping</SelectItem>
+              <SelectItem value="Bird Watching">Bird Watching</SelectItem>
+              <SelectItem value="Nature Walks">Nature Walks</SelectItem>
+              <SelectItem value="Cycling">Cycling</SelectItem>
+              <SelectItem value="Swimming">Swimming</SelectItem>
+              <SelectItem value="Horse Riding">Horse Riding</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleSearch} disabled={loading} className="md:col-span-3">
+            {loading ? "Searching..." : "Search Clubs"}
           </Button>
         </CardContent>
       </Card>
 
-      {clubs.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {clubs.map((club) => (
-            <Card key={club.id}>
-              <CardHeader>
-                <CardTitle>{club.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> {club.location}
-                </p>
-                <p className="flex items-center gap-1">
-                  <Activity className="h-4 w-4" /> {club.activities_offered}
-                </p>
-                <p>{club.description}</p>
-                <p className="font-medium">Contact: {club.contact_email}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-      {loading && (
-        <div className="flex justify-center p-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent" />
-        </div>
-      )}
+      <Card className="flex-1">
+        <CardHeader>
+          <CardTitle>Search Results</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {clubs.length === 0 && !loading ? (
+            <p className="text-center text-gray-500">No outdoor clubs found. Try a different search.</p>
+          ) : (
+            <ScrollArea className="h-[calc(100vh-300px)]">
+              <div className="grid gap-4">
+                {clubs.map((club) => (
+                  <div key={club.id} className="flex items-center gap-4 rounded-md border p-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={club.logo_url || "/placeholder-logo.png"} />
+                      <AvatarFallback>{club.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold">{club.name}</h3>
+                      <p className="text-sm text-gray-500">
+                        <MapPin className="mr-1 inline-block h-3 w-3" />
+                        {club.location}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {club.activities_offered?.map((activity, index) => (
+                          <Badge key={index} variant="secondary">
+                            {activity}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleFavorite(club.id)}>
+                      <Star className="h-5 w-5 text-gray-400 hover:text-yellow-500" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -7,7 +7,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}", // Tremor module
   ],
   prefix: "",
   theme: {
@@ -52,6 +52,68 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Tremor colors
+        tremor: {
+          brand: {
+            faint: "#eff6ff", // blue-50
+            muted: "#bfdbfe", // blue-200
+            subtle: "#60a5fa", // blue-400
+            DEFAULT: "#3b82f6", // blue-500
+            emphasis: "#1d4ed8", // blue-700
+            inverted: "#ffffff", // white
+          },
+          background: {
+            DEFAULT: "#ffffff", // white
+            muted: "#f9fafb", // gray-50
+            subtle: "#f3f4f6", // gray-100
+            emphasis: "#6b7280", // gray-500
+            inverted: "#000000", // black
+          },
+          border: {
+            DEFAULT: "#e5e7eb", // gray-200
+          },
+          ring: {
+            DEFAULT: "#e5e7eb", // gray-200
+          },
+          content: {
+            DEFAULT: "#111827", // gray-900
+            subtle: "#6b7280", // gray-500
+            emphasis: "#374151", // gray-700
+            strong: "#111827", // gray-900
+            inverted: "#ffffff", // white
+          },
+        },
+        // dark mode
+        "dark-tremor": {
+          brand: {
+            faint: "#0B1229", // custom
+            muted: "#172554", // blue-950
+            subtle: "#1e40af", // blue-800
+            DEFAULT: "#3b82f6", // blue-500
+            emphasis: "#60a5fa", // blue-400
+            inverted: "#000000", // black
+          },
+          background: {
+            DEFAULT: "#0A0F12", // custom
+            muted: "#1F2937", // gray-800
+            subtle: "#374151", // gray-700
+            emphasis: "#d1d5db", // gray-300
+            inverted: "#ffffff", // white
+          },
+          border: {
+            DEFAULT: "#374151", // gray-700
+          },
+          ring: {
+            DEFAULT: "#1f2937", // gray-800
+          },
+          content: {
+            DEFAULT: "#f9fafb", // gray-50
+            subtle: "#9ca3af", // gray-400
+            emphasis: "#e5e7eb", // gray-200
+            strong: "#f9fafb", // gray-50
+            inverted: "#000000", // black
+          },
         },
       },
       borderRadius: {

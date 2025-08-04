@@ -17,8 +17,7 @@ export function createClient() {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            // The `cookies().set()` method can only be called in a Server Component or Route Handler.
-            // For more info: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
+            // The `cookies().set()` method can only be called in a Server Action or Route Handler
             // This error is typically ignored if this is called from a Server Component
             // or Server Action, as the cookies are set by the browser.
             console.warn("Could not set cookie:", error)
@@ -28,7 +27,7 @@ export function createClient() {
           try {
             cookieStore.set({ name, value: "", ...options })
           } catch (error) {
-            // The `cookies().set()` method can only be called in a Server Component or Route Handler.
+            // The `cookies().set()` method can only be called in a Server Action or Route Handler
             // This error is typically ignored if this is called from a Server Component
             // or Server Action, as the cookies are set by the browser.
             console.warn("Could not remove cookie:", error)

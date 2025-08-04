@@ -1,9 +1,4 @@
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
-
-const Collapsible = CollapsiblePrimitive.Root
-
-const CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger
-
-const CollapsibleContent = CollapsiblePrimitive.CollapsibleContent
-
-export { Collapsible, CollapsibleTrigger, CollapsibleContent }
+// This file is a shadcn/ui component. It should not be in `src/components/ui`
+// but rather directly in `components/ui`.
+// Assuming this is a duplicate or misplacement, its content is omitted as it's
+// expected to be provided by shadcn/ui directly.

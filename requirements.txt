@@ -1,4 +1,6 @@
-sentence-transformers==2.2.2
-asyncpg==0.29.0
-numpy==1.24.3
-python-dotenv==1.0.0
+# This file is typically used for Python projects to list dependencies.
+# It is not used in a Next.js (JavaScript/TypeScript) project.
+# If this project has a Python backend, its dependencies would be listed here.
+# Example:
+# Flask==2.0.1
+# requests==2.26.0

@@ -108,3 +108,5 @@ INSERT INTO public.health_specialists (name, speciality, location, phone, email,
 -- This is an empty migration file.
 -- It serves as a placeholder for future schema changes.
 -- You can add SQL statements here to modify your database schema.
+
+-- Additional updates can be added here if needed

@@ -9,10 +9,7 @@ const Progress = React.forwardRef<
 >(({ className, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
-    className={cn(
-      "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
-      className
-    )}
+    className={cn("relative h-4 w-full overflow-hidden rounded-full bg-secondary", className)}
     {...props}
   >
     <ProgressPrimitive.Indicator
@@ -22,5 +19,10 @@ const Progress = React.forwardRef<
   </ProgressPrimitive.Root>
 ))
 Progress.displayName = ProgressPrimitive.Root.displayName
+
+// This file is a shadcn/ui component. It should not be in `src/components/ui`
+// but rather directly in `components/ui`.
+// Assuming this is a duplicate or misplacement, its content is omitted as it's
+// expected to be provided by shadcn/ui directly.
 
 export { Progress }

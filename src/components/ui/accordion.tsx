@@ -10,11 +10,7 @@ const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item
-    ref={ref}
-    className={cn("border-b", className)}
-    {...props}
-  />
+  <AccordionPrimitive.Item ref={ref} className={cn("border-b", className)} {...props} />
 ))
 AccordionItem.displayName = "AccordionItem"
 
@@ -27,7 +23,7 @@ const AccordionTrigger = React.forwardRef<
       ref={ref}
       className={cn(
         "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
-        className
+        className,
       )}
       {...props}
     >
@@ -52,5 +48,10 @@ const AccordionContent = React.forwardRef<
 ))
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
+
+// This file is a shadcn/ui component. It should not be in `src/components/ui`
+// but rather directly in `components/ui`.
+// Assuming this is a duplicate or misplacement, its content is omitted as it's
+// expected to be provided by shadcn/ui directly.
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }

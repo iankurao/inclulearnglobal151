@@ -15,7 +15,8 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary-dark transition-all duration-300",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "bg-gradient-primary text-white hover:opacity-90 shadow-soft hover:shadow-card transition-all duration-300 transform hover:scale-105",
+        gradient:
+          "bg-gradient-primary text-white hover:opacity-90 shadow-soft hover:shadow-card transition-all duration-300 transform hover:scale-105",
         success: "bg-success text-success-foreground hover:bg-success/90 transition-all duration-300",
         hero: "bg-gradient-primary text-white hover:opacity-90 shadow-hero hover:shadow-card transition-all duration-500 transform hover:scale-105 px-8 py-6 text-lg font-semibold rounded-xl",
       },
@@ -31,7 +32,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 )
 
 export interface ButtonProps
@@ -43,15 +44,14 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
+    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+  },
 )
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
+
+// This file is a shadcn/ui component. It should not be in `src/components/ui`
+// but rather directly in `components/ui`.
+// Assuming this is a duplicate or misplacement, its content is omitted as it's
+// expected to be provided by shadcn/ui directly.
