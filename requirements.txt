@@ -1,0 +1,4 @@
+sentence-transformers==2.2.2
+asyncpg==0.29.0
+numpy==1.24.3
+python-dotenv==1.0.0
