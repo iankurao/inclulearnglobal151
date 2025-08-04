@@ -7,22 +7,22 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          resource_id: string
-          resource_type: string
+          item_id: string
+          item_type: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          resource_id: string
-          resource_type: string
+          item_id: string
+          item_type: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          resource_id?: string
-          resource_type?: string
+          item_id?: string
+          item_type?: string
           user_id?: string
         }
         Relationships: [
@@ -36,45 +36,42 @@ export type Database = {
       }
       health_specialists: {
         Row: {
+          bio: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
-          description: string | null
           id: string
           location: string | null
           name: string
-          profile_picture_url: string | null
-          services_offered: string[] | null
+          services: string[] | null
           specialty: string | null
-          user_id: string | null
+          user_id: string
           vector_embedding: string | null
         }
         Insert: {
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           location?: string | null
           name: string
-          profile_picture_url?: string | null
-          services_offered?: string[] | null
+          services?: string[] | null
           specialty?: string | null
-          user_id?: string | null
+          user_id: string
           vector_embedding?: string | null
         }
         Update: {
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           location?: string | null
           name?: string
-          profile_picture_url?: string | null
-          services_offered?: string[] | null
+          services?: string[] | null
           specialty?: string | null
-          user_id?: string | null
+          user_id?: string
           vector_embedding?: string | null
         }
         Relationships: [
@@ -88,42 +85,39 @@ export type Database = {
       }
       outdoor_clubs: {
         Row: {
-          activities_offered: string[] | null
+          activities: string[] | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
           description: string | null
           id: string
           location: string | null
-          logo_url: string | null
           name: string
-          user_id: string | null
+          user_id: string
           vector_embedding: string | null
         }
         Insert: {
-          activities_offered?: string[] | null
+          activities?: string[] | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
           location?: string | null
-          logo_url?: string | null
           name: string
-          user_id?: string | null
+          user_id: string
           vector_embedding?: string | null
         }
         Update: {
-          activities_offered?: string[] | null
+          activities?: string[] | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
           location?: string | null
-          logo_url?: string | null
           name?: string
-          user_id?: string | null
+          user_id?: string
           vector_embedding?: string | null
         }
         Relationships: [
@@ -143,10 +137,9 @@ export type Database = {
           description: string | null
           id: string
           location: string | null
-          logo_url: string | null
           name: string
-          specialization: string[] | null
-          user_id: string | null
+          programs: string[] | null
+          user_id: string
           vector_embedding: string | null
         }
         Insert: {
@@ -156,10 +149,9 @@ export type Database = {
           description?: string | null
           id?: string
           location?: string | null
-          logo_url?: string | null
           name: string
-          specialization?: string[] | null
-          user_id?: string | null
+          programs?: string[] | null
+          user_id: string
           vector_embedding?: string | null
         }
         Update: {
@@ -169,10 +161,9 @@ export type Database = {
           description?: string | null
           id?: string
           location?: string | null
-          logo_url?: string | null
           name?: string
-          specialization?: string[] | null
-          user_id?: string | null
+          programs?: string[] | null
+          user_id?: string
           vector_embedding?: string | null
         }
         Relationships: [
@@ -188,19 +179,19 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          search_query: string
+          query: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          search_query: string
+          query: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          search_query?: string
+          query?: string
           user_id?: string
         }
         Relationships: [
@@ -259,21 +250,25 @@ export type Database = {
           id?: string
           user_type?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_id_fkey"
-            columns: ["id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_documents: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          match_count: number
+        }
+        Returns: {
+          id: string
+          content: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
@@ -284,10 +279,56 @@ export type Database = {
   }
 }
 
-export type HealthSpecialist = Database["public"]["Tables"]["health_specialists"]["Row"]
-export type School = Database["public"]["Tables"]["schools"]["Row"]
-export type OutdoorClub = Database["public"]["Tables"]["outdoor_clubs"]["Row"]
-export type UserProfile = Database["public"]["Tables"]["users"]["Row"]
-export type Favorite = Database["public"]["Tables"]["favorites"]["Row"]
-export type SearchHistory = Database["public"]["Tables"]["search_history"]["Row"]
-export type UserPreference = Database["public"]["Tables"]["user_preferences"]["Row"]
+type PublicSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] & PublicSchema["Views"]) | { schema: keyof Database },
+  TableName extends keyof PublicSchema["Tables"] = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName]
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    ? (PublicSchema["Tables"] & PublicSchema["Views"])[PublicTableNameOrOptions]
+    : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
+  TableName extends keyof PublicSchema["Tables"] = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
+  TableName extends keyof PublicSchema["Tables"] = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends keyof PublicSchema["Enums"] | { schema: keyof Database },
+  EnumName extends keyof PublicSchema["Enums"] = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never

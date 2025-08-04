@@ -43,7 +43,7 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
 
-    const onSelect = React.useCallback((api: any) => {
+    const onSelect = React.useCallback((api: UseEmblaCarouselType[1]) => {
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
     }, [])
@@ -201,4 +201,4 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentPropsWit
 )
 CarouselNext.displayName = "CarouselNext"
 
-export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext }
+export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, useCarousel }

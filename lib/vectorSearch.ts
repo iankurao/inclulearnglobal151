@@ -1,25 +1,42 @@
-import { createClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/server"
+import { OpenAI } from "openai"
 
-const supabase = createClient()
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-export async function performVectorSearch(query: string, table: string, column: string, match_threshold = 0.8) {
-  // This is a placeholder for actual embedding generation.
-  // In a real application, you would use an AI model to generate embeddings for the query.
-  // For demonstration, we'll use a dummy embedding.
-  const dummyEmbedding = Array(1536).fill(0.1) // Assuming a 1536-dimension embedding
-
-  const { data, error } = await supabase.rpc("match_documents", {
-    query_embedding: dummyEmbedding,
-    match_threshold: match_threshold,
-    match_count: 10,
-    _table: table,
-    _column: column,
-  })
-
-  if (error) {
-    console.error("Error performing vector search:", error)
-    return []
+export async function generateEmbedding(text: string) {
+  try {
+    const response = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: text,
+    })
+    return response.data[0].embedding
+  } catch (error) {
+    console.error("Error generating embedding:", error)
+    throw error
   }
+}
 
-  return data
+export async function searchVectorDatabase(query: string, matchCount = 5) {
+  const supabase = createClient()
+  try {
+    const queryEmbedding = await generateEmbedding(query)
+
+    const { data, error } = await supabase.rpc("match_documents", {
+      query_embedding: JSON.stringify(queryEmbedding),
+      match_threshold: 0.78, // Adjust as needed
+      match_count: matchCount,
+    })
+
+    if (error) {
+      console.error("Error searching vector database:", error)
+      throw error
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in searchVectorDatabase:", error)
+    throw error
+  }
 }

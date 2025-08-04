@@ -1,153 +1,227 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, MapPin, GraduationCap, Star } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/hooks/useAuth"
-import { createClient } from "@/lib/supabase/client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import type { School } from "@/integrations/supabase/types"
+import { searchVectorDatabase } from "@/lib/vectorSearch"
+import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
+import { Loader2 } from "lucide-react"
+
+interface School {
+  id: string
+  name: string
+  location: string
+  programs: string[]
+  description: string
+  contact_email: string
+  contact_phone: string
+}
 
 export default function SchoolSearchFlow() {
-  const { user } = useAuth()
-  const supabase = createClient()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [location, setLocation] = useState("")
-  const [specialization, setSpecialization] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
   const [schools, setSchools] = useState<School[]>([])
   const [loading, setLoading] = useState(false)
+  const [newSchool, setNewSchool] = useState({
+    name: "",
+    location: "",
+    programs: "",
+    description: "",
+    contact_email: "",
+    contact_phone: "",
+  })
+  const [isAddingSchool, setIsAddingSchool] = useState(false)
+  const supabase = createClient()
+  const { user } = useAuth()
 
   const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      toast.error("Search query cannot be empty.")
+      return
+    }
     setLoading(true)
     try {
-      let query = supabase.from("schools").select("*")
+      const results = await searchVectorDatabase(searchQuery, 10)
+      const schoolIds = results.map((r: any) => r.id)
 
-      if (searchTerm) {
-        query = query.ilike("name", `%${searchTerm}%`)
-      }
-      if (location) {
-        query = query.ilike("location", `%${location}%`)
-      }
-      if (specialization) {
-        query = query.ilike("specialization", `%${specialization}%`)
-      }
+      const { data, error } = await supabase.from("schools").select("*").in("id", schoolIds)
 
-      const { data, error } = await query
+      if (error) throw error
 
-      if (error) {
-        throw error
-      }
-      setSchools(data || [])
-      toast.success(`Found ${data?.length || 0} schools.`)
+      const sortedSchools = data.sort((a: any, b: any) => {
+        const simA = results.find((r: any) => r.id === a.id)?.similarity || 0
+        const simB = results.find((r: any) => r.id === b.id)?.similarity || 0
+        return simB - simA
+      })
+
+      setSchools(sortedSchools as School[])
+      toast.success("Search complete!", { description: `${data.length} schools found.` })
     } catch (error: any) {
-      toast.error(`Error searching: ${error.message}`)
+      toast.error("Search Error", { description: error.message })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleFavorite = async (schoolId: string) => {
+  const handleAddSchool = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (!user) {
-      toast.error("You need to be logged in to favorite schools.")
+      toast.error("Authentication Required", { description: "Please sign in to add a school." })
       return
     }
+    setLoading(true)
     try {
-      const { data, error } = await supabase.from("favorites").insert({
-        user_id: user.id,
-        resource_id: schoolId,
-        resource_type: "school",
+      const { data, error } = await supabase
+        .from("schools")
+        .insert({
+          user_id: user.id,
+          name: newSchool.name,
+          location: newSchool.location,
+          programs: newSchool.programs.split(",").map((p) => p.trim()),
+          description: newSchool.description,
+          contact_email: newSchool.contact_email,
+          contact_phone: newSchool.contact_phone,
+        })
+        .select()
+
+      if (error) throw error
+
+      toast.success("School Added", { description: `${newSchool.name} has been added.` })
+      setNewSchool({
+        name: "",
+        location: "",
+        programs: "",
+        description: "",
+        contact_email: "",
+        contact_phone: "",
       })
-      if (error) {
-        throw error
-      }
-      toast.success("School added to favorites!")
+      setIsAddingSchool(false)
     } catch (error: any) {
-      toast.error(`Error adding to favorites: ${error.message}`)
+      toast.error("Add School Error", { description: error.message })
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="flex h-full flex-col p-4">
-      <Card className="mb-4">
+    <div className="container mx-auto p-4">
+      <h1 className="mb-6 text-3xl font-bold">Schools</h1>
+
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Find Schools</CardTitle>
+          <CardTitle>Search Schools</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
+        <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by name or keyword"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefix={<Search className="h-4 w-4 text-gray-500" />}
+            placeholder="Search by programs, location, or description (e.g., 'autism support Nairobi inclusive education')"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Input
-            placeholder="Location (e.g., Mombasa)"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            prefix={<MapPin className="h-4 w-4 text-gray-500" />}
-          />
-          <Select value={specialization} onValueChange={setSpecialization}>
-            <SelectTrigger>
-              <GraduationCap className="mr-2 h-4 w-4 text-gray-500" />
-              <SelectValue placeholder="Select Specialization" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Autism Spectrum Disorder">Autism Spectrum Disorder</SelectItem>
-              <SelectItem value="Down Syndrome">Down Syndrome</SelectItem>
-              <SelectItem value="Learning Disabilities">Learning Disabilities</SelectItem>
-              <SelectItem value="ADHD">ADHD</SelectItem>
-              <SelectItem value="Physical Disabilities">Physical Disabilities</SelectItem>
-              <SelectItem value="Sensory Impairments">Sensory Impairments</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleSearch} disabled={loading} className="md:col-span-3">
-            {loading ? "Searching..." : "Search Schools"}
+          <Button onClick={handleSearch} disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Search"}
           </Button>
         </CardContent>
       </Card>
 
-      <Card className="flex-1">
+      {schools.length > 0 && (
+        <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {schools.map((school) => (
+            <Card key={school.id}>
+              <CardHeader>
+                <CardTitle>{school.name}</CardTitle>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{school.location}</p>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p>
+                  <strong>Programs:</strong> {school.programs.join(", ")}
+                </p>
+                <p>{school.description}</p>
+                <p>
+                  <strong>Contact:</strong> {school.contact_email} | {school.contact_phone}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Card>
         <CardHeader>
-          <CardTitle>Search Results</CardTitle>
+          <CardTitle>{isAddingSchool ? "Add New School" : "Contribute a School"}</CardTitle>
         </CardHeader>
         <CardContent>
-          {schools.length === 0 && !loading ? (
-            <p className="text-center text-gray-500">No schools found. Try a different search.</p>
+          {!isAddingSchool ? (
+            <Button onClick={() => setIsAddingSchool(true)}>Add New School</Button>
           ) : (
-            <ScrollArea className="h-[calc(100vh-300px)]">
-              <div className="grid gap-4">
-                {schools.map((school) => (
-                  <div key={school.id} className="flex items-center gap-4 rounded-md border p-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={school.logo_url || "/placeholder-logo.png"} />
-                      <AvatarFallback>{school.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold">{school.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        <MapPin className="mr-1 inline-block h-3 w-3" />
-                        {school.location}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {school.specialization?.map((spec, index) => (
-                          <Badge key={index} variant="secondary">
-                            {spec}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleFavorite(school.id)}>
-                      <Star className="h-5 w-5 text-gray-400 hover:text-yellow-500" />
-                    </Button>
-                  </div>
-                ))}
+            <form onSubmit={handleAddSchool} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={newSchool.name}
+                  onChange={(e) => setNewSchool({ ...newSchool, name: e.target.value })}
+                  required
+                />
               </div>
-            </ScrollArea>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={newSchool.location}
+                  onChange={(e) => setNewSchool({ ...newSchool, location: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="programs">Programs (comma-separated)</Label>
+                <Input
+                  id="programs"
+                  value={newSchool.programs}
+                  onChange={(e) => setNewSchool({ ...newSchool, programs: e.target.value })}
+                  placeholder="e.g., special education, therapy, vocational training"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={newSchool.description}
+                  onChange={(e) => setNewSchool({ ...newSchool, description: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact_email">Contact Email</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={newSchool.contact_email}
+                  onChange={(e) => setNewSchool({ ...newSchool, contact_email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact_phone">Contact Phone</Label>
+                <Input
+                  id="contact_phone"
+                  type="tel"
+                  value={newSchool.contact_phone}
+                  onChange={(e) => setNewSchool({ ...newSchool, contact_phone: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading}>
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit School"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsAddingSchool(false)} disabled={loading}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
           )}
         </CardContent>
       </Card>

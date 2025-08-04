@@ -28,11 +28,34 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214.3 31.6% 91.4%;
+    --input: 214.3 31.6% 91.4%;
+    --ring: 222.2 47.4% 11.2%;
 
     --radius: 0.5rem;
+
+    /* Tremor colors */
+    --tremor-brand: 222.2 47.4% 11.2%;
+    --tremor-brand-faint: 210 40% 96.1%;
+    --tremor-brand-muted: 215.4 16.3% 46.9%;
+    --tremor-brand-subtle: 210 40% 96.1%;
+    --tremor-brand-emphasis: 222.2 47.4% 11.2%;
+    --tremor-brand-inverted: 210 40% 98%;
+
+    --tremor-background: 0 0% 100%;
+    --tremor-background-pattern: 0 0% 100%;
+    --tremor-background-muted: 210 40% 96.1%;
+    --tremor-background-subtle: 210 40% 96.1%;
+    --tremor-background-emphasis: 222.2 84% 4.9%;
+
+    --tremor-border: 214.3 31.6% 91.4%;
+    --tremor-ring: 222.2 47.4% 11.2%;
+
+    --tremor-content: 222.2 47.4% 11.2%;
+    --tremor-content-subtle: 215.4 16.3% 46.9%;
+    --tremor-content-emphasis: 222.2 47.4% 11.2%;
+    --tremor-content-strong: 222.2 84% 4.9%;
+    --tremor-content-inverted: 0 0% 100%;
   }
 
   .dark {
@@ -62,7 +85,30 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 210 40% 98%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Tremor colors */
+    --tremor-brand: 210 40% 98%;
+    --tremor-brand-faint: 217.2 32.6% 17.5%;
+    --tremor-brand-muted: 215 20.2% 65.1%;
+    --tremor-brand-subtle: 217.2 32.6% 17.5%;
+    --tremor-brand-emphasis: 210 40% 98%;
+    --tremor-brand-inverted: 222.2 47.4% 11.2%;
+
+    --tremor-background: 222.2 84% 4.9%;
+    --tremor-background-pattern: 222.2 84% 4.9%;
+    --tremor-background-muted: 217.2 32.6% 17.5%;
+    --tremor-background-subtle: 217.2 32.6% 17.5%;
+    --tremor-background-emphasis: 210 40% 98%;
+
+    --tremor-border: 217.2 32.6% 17.5%;
+    --tremor-ring: 212.7 26.8% 83.9%;
+
+    --tremor-content: 210 40% 98%;
+    --tremor-content-subtle: 215 20.2% 65.1%;
+    --tremor-content-emphasis: 210 40% 98%;
+    --tremor-content-strong: 210 40% 98%;
+    --tremor-content-inverted: 222.2 84% 4.9%;
   }
 }
 

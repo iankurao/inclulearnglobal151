@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { buttonVariants } from "@/components/ui/button"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -132,12 +131,12 @@ const SidebarProvider = React.forwardRef<
 })
 SidebarProvider.displayName = "SidebarProvider"
 
-const Sidebar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+const SidebarComponent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div ref={ref} className={cn("flex h-full w-full flex-col", className)} {...props} />
   ),
 )
-Sidebar.displayName = "Sidebar"
+SidebarComponent.displayName = "Sidebar"
 
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
@@ -538,14 +537,15 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   items: {
     href: string
     title: string
+    icon?: React.ReactNode
   }[]
 }
 
-export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+export function CustomSidebar({ className, items, ...props }: SidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -555,11 +555,12 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
           key={item.href}
           href={item.href}
           className={cn(
-            buttonVariants({ variant: "ghost" }),
-            pathname === item.href ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline",
-            "justify-start",
+            "inline-flex items-center whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+            pathname === item.href ? "bg-accent text-accent-foreground" : "bg-transparent",
+            item.icon && "justify-start",
           )}
         >
+          {item.icon && <span className="mr-2">{item.icon}</span>}
           {item.title}
         </Link>
       ))}
@@ -568,7 +569,6 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
 }
 
 export {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -594,4 +594,5 @@ export {
   useSidebar,
   SidebarTitle,
   SidebarDescription,
+  SidebarComponent as Sidebar,
 }

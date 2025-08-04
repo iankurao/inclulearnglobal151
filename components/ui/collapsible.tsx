@@ -13,16 +13,16 @@ const CollapsibleContent = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.CollapsibleContent>,
   React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.CollapsibleContent>
 >(({ className, children, ...props }, ref) => (
-  <CollapsiblePrimitive.CollapsibleContent
+  <CollapsiblePrimitive.Content
     ref={ref}
     className={cn(
-      "overflow-hidden text-sm transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down",
+      "overflow-hidden text-sm data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down",
       className,
     )}
     {...props}
   >
     {children}
-  </CollapsiblePrimitive.CollapsibleContent>
+  </CollapsiblePrimitive.Content>
 ))
 
 CollapsibleContent.displayName = CollapsiblePrimitive.CollapsibleContent.displayName

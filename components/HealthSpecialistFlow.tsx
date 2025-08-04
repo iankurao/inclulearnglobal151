@@ -1,161 +1,244 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, MapPin, Briefcase, Star } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/hooks/useAuth"
-import { createClient } from "@/lib/supabase/client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import type { HealthSpecialist } from "@/integrations/supabase/types"
+import { searchVectorDatabase } from "@/lib/vectorSearch"
+import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
+import { Loader2 } from "lucide-react"
+
+interface Specialist {
+  id: string
+  name: string
+  specialty: string
+  location: string
+  services: string[]
+  bio: string
+  contact_email: string
+  contact_phone: string
+}
 
 export default function HealthSpecialistFlow() {
-  const { user } = useAuth()
-  const supabase = createClient()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [location, setLocation] = useState("")
-  const [specialty, setSpecialty] = useState("")
-  const [specialists, setSpecialists] = useState<HealthSpecialist[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [specialists, setSpecialists] = useState<Specialist[]>([])
   const [loading, setLoading] = useState(false)
+  const [newSpecialist, setNewSpecialist] = useState({
+    name: "",
+    specialty: "",
+    location: "",
+    services: "",
+    bio: "",
+    contact_email: "",
+    contact_phone: "",
+  })
+  const [isAddingSpecialist, setIsAddingSpecialist] = useState(false)
+  const supabase = createClient()
+  const { user } = useAuth()
 
   const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      toast.error("Search query cannot be empty.")
+      return
+    }
     setLoading(true)
     try {
-      let query = supabase.from("health_specialists").select("*")
+      const results = await searchVectorDatabase(searchQuery, 10)
+      const specialistIds = results.map((r: any) => r.id)
 
-      if (searchTerm) {
-        query = query.ilike("name", `%${searchTerm}%`)
-      }
-      if (location) {
-        query = query.ilike("location", `%${location}%`)
-      }
-      if (specialty) {
-        query = query.ilike("specialty", `%${specialty}%`)
-      }
+      const { data, error } = await supabase.from("health_specialists").select("*").in("id", specialistIds)
 
-      const { data, error } = await query
+      if (error) throw error
 
-      if (error) {
-        throw error
-      }
-      setSpecialists(data || [])
-      toast.success(`Found ${data?.length || 0} specialists.`)
+      // Sort results by similarity if needed, or just display as is
+      const sortedSpecialists = data.sort((a: any, b: any) => {
+        const simA = results.find((r: any) => r.id === a.id)?.similarity || 0
+        const simB = results.find((r: any) => r.id === b.id)?.similarity || 0
+        return simB - simA
+      })
+
+      setSpecialists(sortedSpecialists as Specialist[])
+      toast.success("Search complete!", { description: `${data.length} specialists found.` })
     } catch (error: any) {
-      toast.error(`Error searching: ${error.message}`)
+      toast.error("Search Error", { description: error.message })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleFavorite = async (specialistId: string) => {
+  const handleAddSpecialist = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (!user) {
-      toast.error("You need to be logged in to favorite specialists.")
+      toast.error("Authentication Required", { description: "Please sign in to add a specialist." })
       return
     }
+    setLoading(true)
     try {
-      const { data, error } = await supabase.from("favorites").insert({
-        user_id: user.id,
-        resource_id: specialistId,
-        resource_type: "health_specialist",
+      const { data, error } = await supabase
+        .from("health_specialists")
+        .insert({
+          user_id: user.id,
+          name: newSpecialist.name,
+          specialty: newSpecialist.specialty,
+          location: newSpecialist.location,
+          services: newSpecialist.services.split(",").map((s) => s.trim()),
+          bio: newSpecialist.bio,
+          contact_email: newSpecialist.contact_email,
+          contact_phone: newSpecialist.contact_phone,
+        })
+        .select()
+
+      if (error) throw error
+
+      toast.success("Specialist Added", { description: `${newSpecialist.name} has been added.` })
+      setNewSpecialist({
+        name: "",
+        specialty: "",
+        location: "",
+        services: "",
+        bio: "",
+        contact_email: "",
+        contact_phone: "",
       })
-      if (error) {
-        throw error
-      }
-      toast.success("Specialist added to favorites!")
+      setIsAddingSpecialist(false)
     } catch (error: any) {
-      toast.error(`Error adding to favorites: ${error.message}`)
+      toast.error("Add Specialist Error", { description: error.message })
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="flex h-full flex-col p-4">
-      <Card className="mb-4">
+    <div className="container mx-auto p-4">
+      <h1 className="mb-6 text-3xl font-bold">Health Specialists</h1>
+
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Find Health Specialists</CardTitle>
+          <CardTitle>Search Specialists</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
+        <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by name or keyword"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefix={<Search className="h-4 w-4 text-gray-500" />}
+            placeholder="Search by specialty, location, or services (e.g., 'pediatrician Nairobi therapy')"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Input
-            placeholder="Location (e.g., Nairobi)"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            prefix={<MapPin className="h-4 w-4 text-gray-500" />}
-          />
-          <Select value={specialty} onValueChange={setSpecialty}>
-            <SelectTrigger>
-              <Briefcase className="mr-2 h-4 w-4 text-gray-500" />
-              <SelectValue placeholder="Select Specialty" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Pediatrician">Pediatrician</SelectItem>
-              <SelectItem value="Therapist">Therapist</SelectItem>
-              <SelectItem value="Psychologist">Psychologist</SelectItem>
-              <SelectItem value="Occupational Therapist">Occupational Therapist</SelectItem>
-              <SelectItem value="Speech Therapist">Speech Therapist</SelectItem>
-              <SelectItem value="Neurologist">Neurologist</SelectItem>
-              <SelectItem value="Dietitian">Dietitian</SelectItem>
-              <SelectItem value="Audiologist">Audiologist</SelectItem>
-              <SelectItem value="Ophthalmologist">Ophthalmologist</SelectItem>
-              <SelectItem value="Physiotherapist">Physiotherapist</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleSearch} disabled={loading} className="md:col-span-3">
-            {loading ? "Searching..." : "Search Specialists"}
+          <Button onClick={handleSearch} disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Search"}
           </Button>
         </CardContent>
       </Card>
 
-      <Card className="flex-1">
+      {specialists.length > 0 && (
+        <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {specialists.map((specialist) => (
+            <Card key={specialist.id}>
+              <CardHeader>
+                <CardTitle>{specialist.name}</CardTitle>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{specialist.specialty}</p>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p>
+                  <strong>Location:</strong> {specialist.location}
+                </p>
+                <p>
+                  <strong>Services:</strong> {specialist.services.join(", ")}
+                </p>
+                <p>{specialist.bio}</p>
+                <p>
+                  <strong>Contact:</strong> {specialist.contact_email} | {specialist.contact_phone}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Card>
         <CardHeader>
-          <CardTitle>Search Results</CardTitle>
+          <CardTitle>{isAddingSpecialist ? "Add New Specialist" : "Contribute a Specialist"}</CardTitle>
         </CardHeader>
         <CardContent>
-          {specialists.length === 0 && !loading ? (
-            <p className="text-center text-gray-500">No specialists found. Try a different search.</p>
+          {!isAddingSpecialist ? (
+            <Button onClick={() => setIsAddingSpecialist(true)}>Add New Specialist</Button>
           ) : (
-            <ScrollArea className="h-[calc(100vh-300px)]">
-              <div className="grid gap-4">
-                {specialists.map((specialist) => (
-                  <div key={specialist.id} className="flex items-center gap-4 rounded-md border p-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={specialist.profile_picture_url || "/placeholder-user.png"} />
-                      <AvatarFallback>{specialist.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold">{specialist.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        <Briefcase className="mr-1 inline-block h-3 w-3" />
-                        {specialist.specialty}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        <MapPin className="mr-1 inline-block h-3 w-3" />
-                        {specialist.location}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {specialist.services_offered?.map((service, index) => (
-                          <Badge key={index} variant="secondary">
-                            {service}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleFavorite(specialist.id)}>
-                      <Star className="h-5 w-5 text-gray-400 hover:text-yellow-500" />
-                    </Button>
-                  </div>
-                ))}
+            <form onSubmit={handleAddSpecialist} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={newSpecialist.name}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, name: e.target.value })}
+                  required
+                />
               </div>
-            </ScrollArea>
+              <div className="space-y-2">
+                <Label htmlFor="specialty">Specialty</Label>
+                <Input
+                  id="specialty"
+                  value={newSpecialist.specialty}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, specialty: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={newSpecialist.location}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, location: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="services">Services (comma-separated)</Label>
+                <Input
+                  id="services"
+                  value={newSpecialist.services}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, services: e.target.value })}
+                  placeholder="e.g., therapy, counseling, assessment"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  value={newSpecialist.bio}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, bio: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact_email">Contact Email</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={newSpecialist.contact_email}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, contact_email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact_phone">Contact Phone</Label>
+                <Input
+                  id="contact_phone"
+                  type="tel"
+                  value={newSpecialist.contact_phone}
+                  onChange={(e) => setNewSpecialist({ ...newSpecialist, contact_phone: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading}>
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit Specialist"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsAddingSpecialist(false)} disabled={loading}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
           )}
         </CardContent>
       </Card>

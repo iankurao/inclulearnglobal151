@@ -1,149 +1,87 @@
+# Supabase CLI configuration file
+# Learn more about this file here: https://supabase.com/docs/guides/cli/config
+
 [project]
-default_query_timeout_seconds = 5
-default_role = "anon"
-default_schema = "public"
-name = "inclulearnglobal151"
-db_url = "postgresql://postgres:password@localhost:54322/postgres"
-db_user = "postgres"
-db_password = "password"
-db_host = "localhost"
-db_port = 54322
-db_name = "postgres"
-db_schemas = ["public", "storage"]
-db_anon_role = "anon"
-db_authenticated_role = "authenticated"
-db_service_role = "service_role"
-db_extra_migrations_paths = []
-db_pool_size = 10
-db_pool_timeout_seconds = 60
-db_max_connections = 100
-db_connection_timeout_seconds = 5
-db_statement_timeout_seconds = 60
-db_idle_timeout_seconds = 10
-db_application_name = "supabase-cli"
-db_ssl_mode = "prefer"
-db_ssl_root_cert = ""
-db_ssl_client_cert = ""
-db_ssl_client_key = ""
-db_ssl_crl = ""
-db_ssl_compression = 0
-db_ssl_min_protocol_version = "TLSv1.2"
-db_ssl_max_protocol_version = "TLSv1.3"
-db_ssl_cipher_suites = []
-db_ssl_renegotiation_limit = 0
-db_ssl_verify_peer = true
-db_ssl_verify_host = true
-db_ssl_ciphers = ""
-db_ssl_ecdh_curve = ""
-db_ssl_dh_params = ""
-db_ssl_prefer_server_ciphers = false
-db_ssl_session_cache_size = 0
-db_ssl_session_cache_timeout_seconds = 0
-db_ssl_session_tickets = false
-db_ssl_session_ticket_key = ""
-db_ssl_session_ticket_key_file = ""
-db_ssl_session_ticket_key_command = ""
-db_ssl_session_ticket_key_command_timeout_seconds = 0
-db_ssl_session_ticket_key_command_max_output_size = 0
-db_ssl_session_ticket_key_command_max_error_size = 0
-db_ssl_session_ticket_key_command_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session_ticket_key_command_retry_max_output_size = 0
-db_ssl_session_ticket_key_command_retry_max_retries = 0
-db_ssl_session_ticket_key_command_retry_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_delay_seconds = 0
-db_ssl_session_ticket_key_command_retry_backoff_factor = 0
-db_ssl_session_ticket_key_command_retry_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_jitter = 0
-db_ssl_session_ticket_key_command_retry_max_attempts = 0
-db_ssl_session_ticket_key_command_retry_max_duration_seconds = 0
-db_ssl_session_ticket_key_command_retry_max_error_size = 0
-db_ssl_session
+# Project ID: set by `supabase init` and `supabase link`
+id = "your-project-id"
+
+[features]
+# Enable or disable the dashboard.
+dashboard = true
+
+[studio]
+# Studio port
+port = 8000
+
+[inbucket]
+# Inbucket port
+port = 54325
+
+[db]
+# Database URL (used by `supabase db diff` and `supabase migration up`)
+# If you are using a remote database, you can set this to your database connection string.
+# If you are using a local database, you can use the default value.
+# Example: `postgresql://postgres:postgres@localhost:5432/postgres`
+# If you are using a self-hosted database, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a managed database, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
+# Example: `postgresql://postgres:password@localhost:5432/database_name`
+# If you are using a database from a cloud provider, you can set this to your database connection string.
