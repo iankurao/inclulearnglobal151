@@ -1,7 +1,31 @@
 "use client"
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  Bar,
+  BarChart,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartHeader,
+  ChartTitle,
+  ChartDescription,
+  ChartContent,
+} from "@/components/ui/chart"
 
 const data = [
   {
@@ -53,12 +77,14 @@ const data = [
 
 export function Chart() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Calories Burned</CardTitle>
-        <CardDescription>You burned 300 more calories than yesterday.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
+    <ChartContainer>
+      <ChartConfig>
+        <ChartHeader>
+          <ChartTitle>Calories Burned</ChartTitle>
+          <ChartDescription>You burned 300 more calories than yesterday.</ChartDescription>
+        </ChartHeader>
+      </ChartConfig>
+      <ChartContent className="p-0">
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
@@ -72,14 +98,40 @@ export function Chart() {
             >
               <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip />
+              <ChartTooltip />
               <CartesianGrid strokeDasharray="3 3" />
               <Line type="monotone" strokeDasharray="3 3" dataKey="average" stroke="#8884d8" activeDot={{ r: 8 }} />
               <Line type="monotone" dataKey="today" stroke="#82ca9d" activeDot={{ r: 8 }} />
+              <ChartLegend />
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      </ChartContent>
+    </ChartContainer>
   )
+}
+
+export {
+  CartesianGrid,
+  Line,
+  LineChart,
+  Bar,
+  BarChart,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartHeader,
+  ChartTitle,
+  ChartDescription,
+  ChartContent,
 }

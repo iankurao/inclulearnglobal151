@@ -1,201 +1,129 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Phone, Clock, Star } from "lucide-react"
+import { Search, MapPin, Phone, Mail } from "lucide-react"
 
-interface HealthSpecialist {
+interface Specialist {
   id: string
   name: string
   specialty: string
   location: string
-  phone: string
-  rating: number
-  availability: string
-  distance: string
+  contact: {
+    phone: string
+    email: string
+  }
 }
 
-const mockSpecialists: HealthSpecialist[] = [
+const mockSpecialists: Specialist[] = [
   {
     id: "1",
-    name: "Dr. Sarah Mwangi",
+    name: "Dr. Jane Doe",
     specialty: "Pediatric Occupational Therapist",
-    location: "Westlands, Nairobi",
-    phone: "+254 700 123 456",
-    rating: 4.8,
-    availability: "Mon-Fri 9AM-5PM",
-    distance: "2.3 km",
+    location: "Nairobi",
+    contact: { phone: "+254712345678", email: "jane.doe@example.com" },
   },
   {
     id: "2",
-    name: "Dr. James Kiprotich",
-    specialty: "Speech Language Pathologist",
-    location: "Karen, Nairobi",
-    phone: "+254 700 234 567",
-    rating: 4.9,
-    availability: "Mon-Sat 8AM-6PM",
-    distance: "5.1 km",
+    name: "Mr. John Smith",
+    specialty: "Speech-Language Pathologist",
+    location: "Mombasa",
+    contact: { phone: "+254723456789", email: "john.smith@example.com" },
   },
   {
     id: "3",
-    name: "Dr. Grace Wanjiku",
+    name: "Ms. Emily White",
+    specialty: "Child Psychologist",
+    location: "Kisumu",
+    contact: { phone: "+254734567890", email: "emily.white@example.com" },
+  },
+  {
+    id: "4",
+    name: "Dr. David Green",
     specialty: "Developmental Pediatrician",
-    location: "Kilimani, Nairobi",
-    phone: "+254 700 345 678",
-    rating: 4.7,
-    availability: "Tue-Thu 10AM-4PM",
-    distance: "3.8 km",
+    location: "Nairobi",
+    contact: { phone: "+254745678901", email: "david.green@example.com" },
   },
 ]
 
 export default function HealthSpecialistFlow() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedSpecialty, setSelectedSpecialty] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState("")
-  const [specialists, setSpecialists] = useState<HealthSpecialist[]>(mockSpecialists)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [locationFilter, setLocationFilter] = useState("")
 
-  const handleSearch = () => {
-    let filtered = mockSpecialists
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (specialist) =>
-          specialist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          specialist.specialty.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    }
-
-    if (selectedSpecialty) {
-      filtered = filtered.filter((specialist) =>
-        specialist.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()),
-      )
-    }
-
-    if (selectedLocation) {
-      filtered = filtered.filter((specialist) =>
-        specialist.location.toLowerCase().includes(selectedLocation.toLowerCase()),
-      )
-    }
-
-    setSpecialists(filtered)
-  }
+  const filteredSpecialists = mockSpecialists
+    .filter(
+      (specialist) =>
+        specialist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        specialist.specialty.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .filter(
+      (specialist) => locationFilter === "" || specialist.location.toLowerCase().includes(locationFilter.toLowerCase()),
+    )
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Find Health Specialists</h2>
-        <p className="text-gray-600">Connect with qualified health professionals for special needs support</p>
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Search Filters</CardTitle>
-          <CardDescription>Find the right specialist for your needs</CardDescription>
+          <CardTitle>Find Health Specialists</CardTitle>
+          <CardDescription>Search for therapists, doctors, and other health professionals.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="search">Search</Label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                id="search"
                 placeholder="Search by name or specialty..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="specialty">Specialty</Label>
-              <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select specialty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="occupational">Occupational Therapy</SelectItem>
-                  <SelectItem value="speech">Speech Therapy</SelectItem>
-                  <SelectItem value="developmental">Developmental Pediatrics</SelectItem>
-                  <SelectItem value="behavioral">Behavioral Therapy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="westlands">Westlands</SelectItem>
-                  <SelectItem value="karen">Karen</SelectItem>
-                  <SelectItem value="kilimani">Kilimani</SelectItem>
-                  <SelectItem value="upperhill">Upper Hill</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="relative flex-1">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Filter by location (e.g., Nairobi)"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
-          <Button onClick={handleSearch} className="w-full">
-            Search Specialists
-          </Button>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {specialists.map((specialist) => (
-          <Card key={specialist.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{specialist.name}</CardTitle>
-                  <CardDescription>{specialist.specialty}</CardDescription>
+        {filteredSpecialists.length > 0 ? (
+          filteredSpecialists.map((specialist) => (
+            <Card key={specialist.id}>
+              <CardHeader>
+                <CardTitle>{specialist.name}</CardTitle>
+                <CardDescription>{specialist.specialty}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <span>{specialist.location}</span>
                 </div>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-current" />
-                  {specialist.rating}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className="w-4 h-4" />
-                <span>{specialist.location}</span>
-                <Badge variant="outline" className="ml-auto">
-                  {specialist.distance}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="w-4 h-4" />
-                <span>{specialist.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Clock className="w-4 h-4" />
-                <span>{specialist.availability}</span>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button size="sm" className="flex-1">
-                  Book Appointment
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                  View Profile
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                  <a href={`tel:${specialist.contact.phone}`} className="hover:underline">
+                    {specialist.contact.phone}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <a href={`mailto:${specialist.contact.email}`} className="hover:underline">
+                    {specialist.contact.email}
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-500">No specialists found matching your criteria.</p>
+        )}
       </div>
-
-      {specialists.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">
-              No specialists found matching your criteria. Try adjusting your search filters.
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }
