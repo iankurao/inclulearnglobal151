@@ -1,10 +1,8 @@
--- This is a migration file. Its content should be managed by Supabase CLI.
--- It's typically a timestamped file for schema changes.
--- Example content:
--- create table public.search_history (
---   id uuid primary key default uuid_generate_v4(),
---   user_id uuid references auth.users on delete cascade,
---   query text not null,
---   search_type text,
---   searched_at timestamp with time zone default now()
--- );
+-- This is an auto-generated migration file by Supabase CLI.
+-- It's typically used for schema changes.
+-- The content is usually specific to your database state at the time of generation.
+-- For a complete setup, refer to `supabase/complete_setup.sql`.
+
+-- This is an empty migration file.
+-- It serves as a placeholder for the search history schema update.
+-- The actual schema creation is handled in `supabase/complete_setup.sql`.

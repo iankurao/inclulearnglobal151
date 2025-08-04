@@ -1,65 +1,25 @@
-import { createClient } from "@supabase/supabase-js"
-import OpenAI from "openai"
+import { createClient } from "@/lib/supabase/client"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const openaiApiKey = process.env.OPENAI_API_KEY // Use server-side key
+const supabase = createClient()
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-const openai = new OpenAI({ apiKey: openaiApiKey })
+export async function performVectorSearch(query: string, table: string, column: string, match_threshold = 0.8) {
+  // This is a placeholder for actual embedding generation.
+  // In a real application, you would use an AI model to generate embeddings for the query.
+  // For demonstration, we'll use a dummy embedding.
+  const dummyEmbedding = Array(1536).fill(0.1) // Assuming a 1536-dimension embedding
 
-export async function generateEmbedding(text: string) {
-  if (!openaiApiKey) {
-    console.error("OPENAI_API_KEY is not set. Cannot generate embeddings.")
-    return null
+  const { data, error } = await supabase.rpc("match_documents", {
+    query_embedding: dummyEmbedding,
+    match_threshold: match_threshold,
+    match_count: 10,
+    _table: table,
+    _column: column,
+  })
+
+  if (error) {
+    console.error("Error performing vector search:", error)
+    return []
   }
-  try {
-    const response = await openai.embeddings.create({
-      model: "text-embedding-ada-002",
-      input: text,
-    })
-    return response.data[0].embedding
-  } catch (error) {
-    console.error("Error generating embedding:", error)
-    return null
-  }
-}
 
-export async function searchHealthSpecialists(query: string) {
-  const embedding = await generateEmbedding(query)
-  if (!embedding) return []
-
-  const { data, error } = await supabase.rpc("match_health_specialists", {
-    query_embedding: embedding,
-    match_threshold: 0.78, // Adjust as needed
-    match_count: 10,
-  })
-  if (error) console.error("Error searching health specialists:", error)
-  return data
-}
-
-export async function searchSchools(query: string) {
-  const embedding = await generateEmbedding(query)
-  if (!embedding) return []
-
-  const { data, error } = await supabase.rpc("match_schools", {
-    query_embedding: embedding,
-    match_threshold: 0.78, // Adjust as needed
-    match_count: 10,
-  })
-  if (error) console.error("Error searching schools:", error)
-  return data
-}
-
-export async function searchOutdoorClubs(query: string) {
-  const embedding = await generateEmbedding(query)
-  if (!embedding) return []
-
-  const { data, error } = await supabase.rpc("match_outdoor_clubs", {
-    query_embedding: embedding,
-    match_threshold: 0.78, // Adjust as needed
-    match_count: 10,
-  })
-  if (error) console.error("Error searching outdoor clubs:", error)
   return data
 }

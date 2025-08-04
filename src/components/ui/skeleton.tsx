@@ -1,4 +1,15 @@
-// This file is a shadcn/ui component. It should not be in `src/components/ui`
-// but rather directly in `components/ui`.
-// Assuming this is a duplicate or misplacement, its content is omitted as it's
-// expected to be provided by shadcn/ui directly.
+import { cn } from "@/lib/utils"
+
+function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
+    />
+  )
+}
+
+export { Skeleton }

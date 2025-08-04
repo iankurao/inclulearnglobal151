@@ -12,11 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/hooks/useAuth"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
-import AuthUI from "@supabase/auth-ui-react"
-import { ThemeSupa } from "@supabase/auth-ui-shared"
-import { supabase } from "../integrations/supabase/client"
 
-export default function AuthPage() {
+export default function Auth() {
   const [loading, setLoading] = useState(false)
   const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
@@ -99,12 +96,30 @@ export default function AuthPage() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <AuthUI
-                supabaseClient={supabase}
-                appearance={{ theme: ThemeSupa }}
-                providers={["google", "github"]}
-                redirectTo={window.location.origin}
-              />
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Input id="signup-name" name="fullName" type="text" placeholder="Enter your full name" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input id="signup-email" name="email" type="email" placeholder="Enter your email" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input
+                    id="signup-password"
+                    name="password"
+                    type="password"
+                    placeholder="Create a password"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Sign Up
+                </Button>
+              </form>
             </TabsContent>
           </Tabs>
         </CardContent>

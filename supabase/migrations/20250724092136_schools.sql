@@ -2,17 +2,16 @@
 CREATE TABLE IF NOT EXISTS public.schools (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
-  type TEXT,
-  description TEXT,
+  type TEXT NOT NULL, -- e.g., "Primary", "Secondary", "Special Needs School"
+  location TEXT NOT NULL,
+  special_needs_support TEXT, -- e.g., "Autism Spectrum", "ADHD", "Learning Disabilities"
+  curriculum TEXT,
   contact_email TEXT,
   phone_number TEXT,
-  address TEXT,
-  city TEXT,
-  state TEXT,
-  zip_code TEXT,
-  country TEXT,
   website TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable RLS
@@ -38,11 +37,14 @@ FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
 -- Insert sample data
 INSERT INTO public.schools (
-  name, address, city, state, zip_code, country, type, contact_email, phone_number, website, description
+  name, location, type, special_needs_support, curriculum, contact_email, phone_number, website, description
 ) VALUES 
 (
   'Nairobi Special Needs Academy',
-  'Westlands', 'Nairobi', 'Nairobi', '00100', 'Kenya', 'Special Needs School',
+  'Nairobi, Westlands',
+  'Special Needs School',
+  'Autism Spectrum',
+  'IB Program',
   'info@nairobisna.ac.ke',
   '+254-700-111111',
   'www.nairobisna.ac.ke',
@@ -50,7 +52,10 @@ INSERT INTO public.schools (
 ),
 (
   'Mombasa Inclusive Primary School',
-  'Nyali', 'Mombasa', 'Mombasa', '00200', 'Kenya', 'Primary',
+  'Mombasa, Nyali',
+  'Primary',
+  'ADHD',
+  'Cambridge Curriculum',
   'info@mombasainclusive.sc.ke',
   '+254-700-222222',
   'www.mombasainclusive.sc.ke',
@@ -58,7 +63,10 @@ INSERT INTO public.schools (
 ),
 (
   'Kisumu International School',
-  'Milimani', 'Kisumu', 'Kisumu', '00300', 'Kenya', 'International',
+  'Kisumu, Milimani',
+  'International',
+  'Learning Disabilities',
+  'IB Program',
   'admissions@kisumuint.ac.ke',
   '+254-700-333333',
   'www.kisumuint.ac.ke',
@@ -66,7 +74,10 @@ INSERT INTO public.schools (
 ),
 (
   'Eldoret Community School',
-  'Kapsoya', 'Eldoret', 'Eldoret', '00400', 'Kenya', 'Private',
+  'Eldoret, Kapsoya',
+  'Private',
+  'Learning Disabilities',
+  'Cambridge Curriculum',
   'info@eldoretcommunity.sc.ke',
   '+254-700-444444',
   'www.eldoretcommunity.sc.ke',
@@ -74,7 +85,10 @@ INSERT INTO public.schools (
 ),
 (
   'Nakuru Autism Center School',
-  'Milimani', 'Nakuru', 'Nakuru', '00500', 'Kenya', 'Special Needs School',
+  'Nakuru, Milimani',
+  'Special Needs School',
+  'Autism Spectrum',
+  'IB Program',
   'info@nakuruautism.ac.ke',
   '+254-700-555555',
   'www.nakuruautism.ac.ke',
@@ -82,7 +96,10 @@ INSERT INTO public.schools (
 ),
 (
   'Thika Inclusive Secondary School',
-  'Blue Post', 'Thika', 'Thika', '00600', 'Kenya', 'Secondary',
+  'Thika, Blue Post',
+  'Secondary',
+  'ADHD',
+  'Cambridge Curriculum',
   'info@thikainclusive.sc.ke',
   '+254-700-666666',
   'www.thikainclusive.sc.ke',
@@ -90,7 +107,10 @@ INSERT INTO public.schools (
 ),
 (
   'Machakos Special Education Center',
-  'Town', 'Machakos', 'Machakos', '00700', 'Kenya', 'Special Needs School',
+  'Machakos, Town',
+  'Special Needs School',
+  'Intellectual and Physical Disabilities',
+  'IB Program',
   'info@machakosspecial.ac.ke',
   '+254-700-777777',
   'www.machakosspecial.ac.ke',
@@ -98,7 +118,10 @@ INSERT INTO public.schools (
 ),
 (
   'Karen International Academy',
-  'Karen', 'Nairobi', 'Nairobi', '00800', 'Kenya', 'International',
+  'Nairobi, Karen',
+  'International',
+  'Learning Disabilities',
+  'Cambridge Curriculum',
   'admissions@karenacademy.ac.ke',
   '+254-700-888888',
   'www.karenacademy.ac.ke',

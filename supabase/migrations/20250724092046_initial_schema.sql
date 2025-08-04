@@ -114,16 +114,3 @@ DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
 CREATE TRIGGER on_auth_user_updated
   AFTER UPDATE ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_user_update();
-
--- This is a migration file. Its content should be managed by Supabase CLI.
--- It's typically a timestamped file for schema changes.
--- Example content:
--- create table public.profiles (
---   id uuid not null references auth.users on delete cascade,
---   updated_at timestamp with time zone,
---   username text unique,
---   avatar_url text,
---   website text,
---   primary key (id),
---   constraint username_length check (char_length(username) >= 3)
--- );

@@ -2,16 +2,14 @@
 CREATE TABLE public.outdoor_clubs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
-    activity_type TEXT, -- e.g., "Hiking", "Art Therapy", "Sports"
-    description TEXT,
+    activity_type TEXT NOT NULL, -- e.g., "Hiking", "Art Therapy", "Sports"
+    location TEXT NOT NULL,
+    age_group TEXT, -- e.g., "Children", "Teens", "Adults", "All Ages"
+    schedule TEXT,
     contact_email TEXT,
     phone_number TEXT,
-    address TEXT,
-    city TEXT,
-    state TEXT,
-    zip_code TEXT,
-    country TEXT,
     website TEXT,
+    description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

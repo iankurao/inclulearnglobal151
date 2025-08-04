@@ -2,16 +2,15 @@
 CREATE TABLE public.schools (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
-    type TEXT,
+    location TEXT NOT NULL,
+    specialization TEXT NOT NULL,
+    programs TEXT[],
+    contact_info TEXT,
     description TEXT,
-    contact_email TEXT,
-    phone_number TEXT,
-    address TEXT,
-    city TEXT,
-    state TEXT,
-    zip_code TEXT,
-    country TEXT,
     website TEXT,
+    email TEXT UNIQUE,
+    phone TEXT,
+    rating NUMERIC(2,1),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -39,5 +38,6 @@ CREATE POLICY "Authenticated users can delete their own schools."
 ON public.schools FOR DELETE
 USING (auth.uid() = user_id); -- Placeholder: replace 'user_id' with actual user_id column if exists
 
--- This is a migration file. Its content should be managed by Supabase CLI.
--- It's typically a timestamped file for schema changes.
+-- This is an empty migration file.
+-- It serves as a placeholder for the schools schema update.
+-- The actual schema creation is handled in `supabase/complete_setup.sql`.

@@ -1,41 +1,68 @@
 "use client"
 
-// This file is typically used in a Create React App or Vite React project.
-// In a Next.js project, the main application entry point is `app/layout.tsx` and `app/page.tsx`.
+import type React from "react"
 
-// Example content if this were a standard React app:
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider, useAuth } from "@/hooks/useAuth"
+import Index from "@/pages/Index"
+import Auth from "@/pages/Auth"
+import NotFound from "@/pages/NotFound"
 
-// function App() {
-//   const [count, setCount] = useState(0)
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth()
 
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vitejs.dev" target="_blank">
-//           <img src={viteLogo || "/placeholder.png"} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo || "/placeholder.png"} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.tsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
-// export default App
+  if (!user) {
+    return <Navigate to="/auth" replace />
+  }
+
+  return <>{children}</>
+}
+
+function AppRoutes() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  return (
+    <Routes>
+      <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Index />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppRoutes />
+        <Toaster />
+      </Router>
+    </AuthProvider>
+  )
+}
+
+export default App

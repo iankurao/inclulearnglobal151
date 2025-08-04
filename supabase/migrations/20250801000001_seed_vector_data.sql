@@ -24,26 +24,26 @@
 -- script to populate these columns with actual embeddings.
 
 -- Example data for health_specialists
-INSERT INTO public.health_specialists (name, specialty, location, contact_email, phone_number, description, embedding)
+INSERT INTO public.health_specialists (name, specialty, location, contact_email, phone_number, description)
 VALUES
-('Dr. Jane Doe', 'Pediatric Physical Therapist', 'Nairobi', 'jane.doe@example.com', '+254712345678', 'Specializes in early intervention and motor development for children with cerebral palsy and Down syndrome.', '[...embedding array...]'),
-('Mr. John Smith', 'Occupational Therapist', 'Mombasa', 'john.smith@example.com', '+254723456789', 'Focuses on sensory integration and daily living skills for children with autism spectrum disorder.', '[...embedding array...]'),
-('Ms. Emily White', 'Speech-Language Pathologist', 'Kisumu', 'emily.white@example.com', '+254734567890', 'Works with children and adults on communication disorders, including stuttering and articulation.', '[...embedding array...]'),
-('Dr. Alex Green', 'Developmental Pediatrician', 'Nairobi', 'alex.green@example.com', '+254745678901', 'Provides comprehensive developmental assessments and management plans for children with complex needs.', '[...embedding array...]');
+('Dr. Jane Doe', 'Pediatric Physical Therapist', 'Nairobi', 'jane.doe@example.com', '+254712345678', 'Specializes in early intervention and motor development for children with cerebral palsy and Down syndrome.'),
+('Mr. John Smith', 'Occupational Therapist', 'Mombasa', 'john.smith@example.com', '+254723456789', 'Focuses on sensory integration and daily living skills for children with autism spectrum disorder.'),
+('Ms. Emily White', 'Speech-Language Pathologist', 'Kisumu', 'emily.white@example.com', '+254734567890', 'Works with children and adults on communication disorders, including stuttering and articulation.'),
+('Dr. Alex Green', 'Developmental Pediatrician', 'Nairobi', 'alex.green@example.com', '+254745678901', 'Provides comprehensive developmental assessments and management plans for children with complex needs.');
 
 -- Example data for schools
-INSERT INTO public.schools (name, location, education_level, contact_email, phone_number, description, embedding)
+INSERT INTO public.schools (name, location, education_level, contact_email, phone_number, description)
 VALUES
-('Bright Minds Academy', 'Nairobi', 'Primary', 'info@brightminds.ke', '+254700112233', 'An inclusive primary school with dedicated special education needs support units and trained staff.', '[...embedding array...]'),
-('Coastal Learning Centre', 'Mombasa', 'Special Needs', 'admin@coastallearning.ke', '+254701223344', 'A specialized center offering individualized education programs for children with intellectual disabilities and learning difficulties.', '[...embedding array...]'),
-('Highland Inclusive School', 'Eldoret', 'Secondary', 'contact@highlandinclusive.ke', '+254702334455', 'Provides a mainstream curriculum with integrated support for students with physical disabilities and visual impairments.', '[...embedding array...]');
+('Bright Minds Academy', 'Nairobi', 'Primary', 'info@brightminds.ke', '+254700112233', 'An inclusive primary school with dedicated special education needs support units and trained staff.'),
+('Coastal Learning Centre', 'Mombasa', 'Special Needs', 'admin@coastallearning.ke', '+254701223344', 'A specialized center offering individualized education programs for children with intellectual disabilities and learning difficulties.'),
+('Highland Inclusive School', 'Eldoret', 'Secondary', 'contact@highlandinclusive.ke', '+254702334455', 'Provides a mainstream curriculum with integrated support for students with physical disabilities and visual impairments.');
 
 -- Example data for outdoor_clubs
-INSERT INTO public.outdoor_clubs (name, activity_type, location, contact_email, phone_number, description, embedding)
+INSERT INTO public.outdoor_clubs (name, activity_type, location, contact_email, phone_number, description)
 VALUES
-('Nairobi Nature Explorers', 'Nature Walks', 'Nairobi', 'explorers@example.com', '+254750111222', 'An outdoor club organizing accessible nature walks and birdwatching for all abilities, including wheelchair-friendly trails.', '[...embedding array...]'),
-('Mountain Adventurers Kenya', 'Hiking', 'Nakuru', 'adventures@example.com', '+254751222333', 'Offers guided hiking trips with adaptive equipment and support for individuals with mobility challenges.', '[...embedding array...]'),
-('Lake Victoria Kayaking Club', 'Kayaking', 'Kisumu', 'kayak@example.com', '+254752333444', 'Provides adaptive kayaking lessons and tours on Lake Victoria, welcoming participants of all physical abilities.', '[...embedding array...]');
+('Nairobi Nature Explorers', 'Nature Walks', 'Nairobi', 'explorers@example.com', '+254750111222', 'An outdoor club organizing accessible nature walks and birdwatching for all abilities, including wheelchair-friendly trails.'),
+('Mountain Adventurers Kenya', 'Hiking', 'Nakuru', 'adventures@example.com', '+254751222333', 'Offers guided hiking trips with adaptive equipment and support for individuals with mobility challenges.'),
+('Lake Victoria Kayaking Club', 'Kayaking', 'Kisumu', 'kayak@example.com', '+254752333444', 'Provides adaptive kayaking lessons and tours on Lake Victoria, welcoming participants of all physical abilities.');
 
 -- IMPORTANT: After inserting data, you must run the `scripts/generate_embeddings.py`
 -- or a similar process to populate the `embedding` columns.
