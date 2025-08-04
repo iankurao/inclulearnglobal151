@@ -2,15 +2,15 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { AuthProvider } from "@/hooks/useAuth"
-import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider } from "@/hooks/useAuth"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "IncluLearn Global",
-  description: "Your comprehensive platform for connecting with special needs resources in Kenya",
+  description: "Connecting Families with Special Needs Resources in Kenya",
     generator: 'v0.dev'
 }
 
