@@ -42,3 +42,6 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 -- It's typically used for schema changes.
 -- The content is usually specific to your database state at the time of generation.
 -- For a complete setup, refer to `supabase/complete_setup.sql`.
+
+-- This is an empty migration file.
+-- It is typically used as a placeholder or for initial setup.

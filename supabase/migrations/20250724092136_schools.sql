@@ -1,183 +1,135 @@
 -- Create schools table
-CREATE TABLE IF NOT EXISTS schools (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS public.schools (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('public', 'private', 'special_needs', 'international')),
   location TEXT NOT NULL,
-  contact_phone TEXT,
-  contact_email TEXT,
-  website TEXT,
-  principal_name TEXT,
-  student_capacity INTEGER,
-  current_enrollment INTEGER,
-  grade_levels TEXT[] DEFAULT '{}',
-  special_programs TEXT[] DEFAULT '{}',
-  accessibility_features TEXT[] DEFAULT '{}',
-  languages_of_instruction TEXT[] DEFAULT '{}',
-  tuition_fees DECIMAL(10,2),
+  specialization TEXT NOT NULL,
+  programs TEXT[],
+  contact_info TEXT,
   description TEXT,
-  facilities TEXT[] DEFAULT '{}',
+  website TEXT,
+  email TEXT UNIQUE,
+  phone TEXT,
+  rating NUMERIC(2,1),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable RLS
-ALTER TABLE schools ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.schools ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
-CREATE POLICY "Schools are viewable by everyone" ON schools
+CREATE POLICY "Public schools are viewable by everyone." ON public.schools
   FOR SELECT USING (true);
 
+CREATE POLICY "Authenticated users can insert schools." ON public.schools
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can update their own schools." ON public.schools
+  FOR UPDATE USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+
+CREATE POLICY "Authenticated users can delete their own schools." ON public.schools
+  FOR DELETE USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+
 -- Insert sample data
-INSERT INTO schools (
-  name, type, location, contact_phone, contact_email, website,
-  principal_name, student_capacity, current_enrollment, grade_levels,
-  special_programs, accessibility_features, languages_of_instruction,
-  tuition_fees, description, facilities
+INSERT INTO public.schools (
+  name, location, specialization, programs, contact_info, description, website, email, phone, rating
 ) VALUES 
 (
   'Nairobi Special Needs Academy',
-  'special_needs',
   'Nairobi, Westlands',
-  '+254-700-111111',
-  'info@nairobisna.ac.ke',
-  'www.nairobisna.ac.ke',
-  'Mrs. Jane Muthoni',
-  200,
-  150,
-  ARRAY['Pre-K', 'K-5', '6-8', '9-12'],
+  'special_needs',
   ARRAY['Autism Support', 'Speech Therapy', 'Occupational Therapy', 'Behavioral Support'],
-  ARRAY['Wheelchair Accessible', 'Sensory Rooms', 'Adaptive Technology', 'Sign Language Support'],
-  ARRAY['English', 'Swahili'],
-  180000.00,
+  'Contact: +254-700-111111, info@nairobisna.ac.ke',
   'Specialized school for children with autism, ADHD, and other developmental disabilities. Small class sizes with individualized education plans.',
-  ARRAY['Therapy Rooms', 'Sensory Garden', 'Computer Lab', 'Library', 'Playground']
+  'www.nairobisna.ac.ke',
+  'info@nairobisna.ac.ke',
+  '+254-700-111111',
+  4.5
 ),
 (
   'Mombasa Inclusive Primary School',
-  'public',
   'Mombasa, Nyali',
-  '+254-700-222222',
-  'info@mombasainclusive.sc.ke',
-  'www.mombasainclusive.sc.ke',
-  'Mr. Hassan Ali',
-  400,
-  380,
-  ARRAY['Pre-K', 'K-8'],
+  'public',
   ARRAY['Inclusive Education', 'Special Needs Support', 'Remedial Classes'],
-  ARRAY['Wheelchair Accessible', 'Braille Materials', 'Sign Language Classes'],
-  ARRAY['English', 'Swahili', 'Arabic'],
-  0.00,
+  'Contact: +254-700-222222, info@mombasainclusive.sc.ke',
   'Public school with strong inclusive education program. Welcomes children with disabilities alongside typical peers.',
-  ARRAY['Resource Room', 'Library', 'Science Lab', 'Sports Field', 'Cafeteria']
+  'www.mombasainclusive.sc.ke',
+  'info@mombasainclusive.sc.ke',
+  '+254-700-222222',
+  4.7
 ),
 (
   'Kisumu International School',
-  'international',
   'Kisumu, Milimani',
-  '+254-700-333333',
-  'admissions@kisumuint.ac.ke',
-  'www.kisumuint.ac.ke',
-  'Dr. Mary Otieno',
-  300,
-  250,
-  ARRAY['Pre-K', 'K-12'],
+  'international',
   ARRAY['IB Program', 'Special Education Services', 'Gifted and Talented'],
-  ARRAY['Wheelchair Accessible', 'Learning Support Center', 'Assistive Technology'],
-  ARRAY['English', 'French', 'Swahili'],
-  350000.00,
+  'Contact: +254-700-333333, admissions@kisumuint.ac.ke',
   'International school offering IB curriculum with comprehensive special education services and support for diverse learners.',
-  ARRAY['Science Labs', 'Art Studios', 'Music Room', 'Swimming Pool', 'Library']
+  'www.kisumuint.ac.ke',
+  'admissions@kisumuint.ac.ke',
+  '+254-700-333333',
+  4.8
 ),
 (
   'Eldoret Community School',
-  'private',
   'Eldoret, Kapsoya',
-  '+254-700-444444',
-  'info@eldoretcommunity.sc.ke',
-  'www.eldoretcommunity.sc.ke',
-  'Mr. Peter Cheruiyot',
-  250,
-  200,
-  ARRAY['K-8'],
+  'private',
   ARRAY['Learning Disabilities Support', 'Counseling Services', 'Peer Tutoring'],
-  ARRAY['Wheelchair Accessible', 'Quiet Study Areas', 'Modified Curriculum'],
-  ARRAY['English', 'Swahili', 'Kalenjin'],
-  120000.00,
+  'Contact: +254-700-444444, info@eldoretcommunity.sc.ke',
   'Community-focused private school with dedicated support for children with learning disabilities and behavioral challenges.',
-  ARRAY['Computer Lab', 'Library', 'Counseling Office', 'Playground', 'Garden']
+  'www.eldoretcommunity.sc.ke',
+  'info@eldoretcommunity.sc.ke',
+  '+254-700-444444',
+  4.6
 ),
 (
   'Nakuru Autism Center School',
-  'special_needs',
   'Nakuru, Milimani',
-  '+254-700-555555',
-  'info@nakuruautism.ac.ke',
-  'www.nakuruautism.ac.ke',
-  'Mrs. Grace Wanjiru',
-  80,
-  65,
-  ARRAY['Pre-K', 'K-12'],
+  'special_needs',
   ARRAY['Applied Behavior Analysis', 'Speech Therapy', 'Life Skills Training'],
-  ARRAY['Sensory Rooms', 'Structured Environment', 'Visual Schedules', 'Quiet Spaces'],
-  ARRAY['English', 'Swahili'],
-  200000.00,
+  'Contact: +254-700-555555, info@nakuruautism.ac.ke',
   'Specialized school exclusively for children with autism spectrum disorders. Evidence-based interventions and family support.',
-  ARRAY['Therapy Rooms', 'Sensory Garden', 'Life Skills Kitchen', 'Quiet Rooms']
+  'www.nakuruautism.ac.ke',
+  'info@nakuruautism.ac.ke',
+  '+254-700-555555',
+  4.4
 ),
 (
   'Thika Inclusive Secondary School',
-  'public',
   'Thika, Blue Post',
-  '+254-700-666666',
-  'info@thikainclusive.sc.ke',
-  'www.thikainclusive.sc.ke',
-  'Mr. John Kamau',
-  600,
-  550,
-  ARRAY['9-12'],
+  'public',
   ARRAY['Inclusive Education', 'Vocational Training', 'Career Counseling'],
-  ARRAY['Wheelchair Accessible', 'Assistive Technology', 'Modified Exams'],
-  ARRAY['English', 'Swahili'],
-  0.00,
+  'Contact: +254-700-666666, info@thikainclusive.sc.ke',
   'Public secondary school with strong commitment to inclusive education and preparing students with disabilities for higher education or employment.',
-  ARRAY['Vocational Workshops', 'Computer Lab', 'Library', 'Science Labs', 'Sports Facilities']
+  'www.thikainclusive.sc.ke',
+  'info@thikainclusive.sc.ke',
+  '+254-700-666666',
+  4.3
 ),
 (
   'Machakos Special Education Center',
-  'special_needs',
   'Machakos, Town',
-  '+254-700-777777',
-  'info@machakosspecial.ac.ke',
-  'www.machakosspecial.ac.ke',
-  'Mrs. Susan Mutua',
-  120,
-  100,
-  ARRAY['Pre-K', 'K-8'],
+  'special_needs',
   ARRAY['Intellectual Disabilities Support', 'Physical Therapy', 'Adaptive PE'],
-  ARRAY['Wheelchair Accessible', 'Therapy Equipment', 'Adaptive Playground'],
-  ARRAY['English', 'Swahili', 'Kamba'],
-  150000.00,
+  'Contact: +254-700-777777, info@machakosspecial.ac.ke',
   'Specialized center for children with intellectual and physical disabilities. Focus on functional life skills and community integration.',
-  ARRAY['Therapy Rooms', 'Adaptive Playground', 'Life Skills Areas', 'Sensory Room']
+  'www.machakosspecial.ac.ke',
+  'info@machakosspecial.ac.ke',
+  '+254-700-777777',
+  4.2
 ),
 (
   'Karen International Academy',
-  'international',
   'Nairobi, Karen',
-  '+254-700-888888',
-  'admissions@karenacademy.ac.ke',
-  'www.karenacademy.ac.ke',
-  'Dr. Elizabeth Wanjiku',
-  400,
-  350,
-  ARRAY['Pre-K', 'K-12'],
+  'international',
   ARRAY['Cambridge Curriculum', 'Learning Support', 'Gifted Education'],
-  ARRAY['Wheelchair Accessible', 'Learning Support Unit', 'Assistive Technology'],
-  ARRAY['English', 'French', 'Swahili'],
-  450000.00,
+  'Contact: +254-700-888888, admissions@karenacademy.ac.ke',
   'Premium international school offering Cambridge curriculum with comprehensive learning support services for students with diverse needs.',
-  ARRAY['Science Labs', 'Art Studios', 'Music Rooms', 'Swimming Pool', 'Sports Complex', 'Library']
+  'www.karenacademy.ac.ke',
+  'admissions@karenacademy.ac.ke',
+  '+254-700-888888',
+  4.9
 );
 
 -- This is an auto-generated migration file by Supabase CLI.

@@ -1,165 +1,77 @@
 # Supabase CLI configuration file
-# For more details, see https://supabase.com/docs/reference/cli/config
+# Learn more about this file here: https://supabase.com/docs/guides/cli/config
 
 [project]
-# Project ID (e.g. 'your-project-ref')
-id = "inclulearnglobal101main"
+# Project ID from Supabase Dashboard
+# e.g. 'aaaaaaaaaaaaaaaaaaaa'
+id = ""
 
-# Path to the directory containing your Supabase migrations
+[db]
+# The database URL to connect to when running commands.
+# Can be overridden with the --db-url flag.
+# If not set, the CLI will use the URL from `supabase link` or `supabase init`.
+# url = "postgresql://postgres:password@localhost:54322/postgres"
+
+# The path to the migrations folder.
 migrations_path = "supabase/migrations"
 
-# Path to the directory containing your Supabase functions
-functions_path = "supabase/functions"
+# The name of the database schema to use for the migrations.
+# This is useful if you are using a custom schema for your database.
+# schema = "public"
 
-# Path to the directory containing your Supabase seed data
-seed_path = "supabase/seed.sql"
+# The name of the database role to use for the migrations.
+# This is useful if you are using a custom role for your database.
+# role = "postgres"
 
-# Path to the directory containing your Supabase volumes
-volumes_path = "supabase/volumes"
+# The maximum number of seconds to wait for a database connection.
+# connection_timeout = 5
 
-# Path to the directory containing your Supabase tests
-tests_path = "supabase/tests"
+# The maximum number of retries for a database connection.
+# connection_retries = 3
 
-# Path to the directory containing your Supabase types
-types_path = "supabase/types"
+# The path to the file that contains the database seed data.
+# seed_path = "supabase/seed.sql"
 
-# Path to the directory containing your Supabase storage objects
-storage_path = "supabase/storage"
+[functions]
+# The path to the functions folder.
+# path = "supabase/functions"
 
-# Path to the directory containing your Supabase GraphQL schema
-graphql_path = "supabase/graphql"
+[storage]
+# The path to the storage folder.
+# path = "supabase/storage"
 
-# Path to the directory containing your Supabase dashboard extensions
-dashboard_path = "supabase/dashboard"
+[realtime]
+# The path to the realtime folder.
+# path = "supabase/realtime"
 
-# Path to the directory containing your Supabase UI extensions
-ui_path = "supabase/ui"
+[graphql]
+# The path to the GraphQL folder.
+# path = "supabase/graphql"
 
-# Path to the directory containing your Supabase hooks
-hooks_path = "supabase/hooks"
+[studio]
+# The port to use for the Supabase Studio.
+# port = 54323
 
-# Path to the directory containing your Supabase triggers
-triggers_path = "supabase/triggers"
+[inbucket]
+# The port to use for the Inbucket email server.
+# port = 54324
 
-# Path to the directory containing your Supabase policies
-policies_path = "supabase/policies"
+[gotrue]
+# The port to use for the GoTrue authentication server.
+# port = 9999
 
-# Path to the directory containing your Supabase RLS policies
-rls_path = "supabase/rls"
+[api]
+# The port to use for the API server.
+# port = 8000
 
-# Path to the directory containing your Supabase database functions
-db_functions_path = "supabase/db_functions"
+[diff]
+# The path to the diff tool to use.
+# tool = "diff"
 
-# Path to the directory containing your Supabase database views
-db_views_path = "supabase/db_views"
+[logs]
+# The path to the logs folder.
+# path = "supabase/logs"
 
-# Path to the directory containing your Supabase database materialized views
-db_materialized_views_path = "supabase/db_materialized_views"
-
-# Path to the directory containing your Supabase database tables
-db_tables_path = "supabase/db_tables"
-
-# Path to the directory containing your Supabase database types
-db_types_path = "supabase/db_types"
-
-# Path to the directory containing your Supabase database enums
-db_enums_path = "supabase/db_enums"
-
-# Path to the directory containing your Supabase database extensions
-db_extensions_path = "supabase/db_extensions"
-
-# Path to the directory containing your Supabase database roles
-db_roles_path = "supabase/db_roles"
-
-# Path to the directory containing your Supabase database schemas
-db_schemas_path = "supabase/db_schemas"
-
-# Path to the directory containing your Supabase database foreign data wrappers
-db_fdw_path = "supabase/db_fdw"
-
-# Path to the directory containing your Supabase database foreign tables
-db_foreign_tables_path = "supabase/db_foreign_tables"
-
-# Path to the directory containing your Supabase database foreign servers
-db_foreign_servers_path = "supabase/db_foreign_servers"
-
-# Path to the directory containing your Supabase database user mappings
-db_user_mappings_path = "supabase/db_user_mappings"
-
-# Path to the directory containing your Supabase database publications
-db_publications_path = "supabase/db_publications"
-
-# Path to the directory containing your Supabase database subscriptions
-db_subscriptions_path = "supabase/db_subscriptions"
-
-# Path to the directory containing your Supabase database event triggers
-db_event_triggers_path = "supabase/db_event_triggers"
-
-# Path to the directory containing your Supabase database row security policies
-db_row_security_policies_path = "supabase/db_row_security_policies"
-
-# Path to the directory containing your Supabase database policies
-db_policies_path = "supabase/db_policies"
-
-# Path to the directory containing your Supabase database roles
-db_roles_path = "supabase/db_roles"
-
-# Path to the directory containing your Supabase database schemas
-db_schemas_path = "supabase/db_schemas"
-
-# Path to the directory containing your Supabase database foreign data wrappers
-db_fdw_path = "supabase/db_fdw"
-
-# Path to the directory containing your Supabase database foreign tables
-db_foreign_tables_path = "supabase/db_foreign_tables"
-
-# Path to the directory containing your Supabase database foreign servers
-db_foreign_servers_path = "supabase/db_foreign_servers"
-
-# Path to the directory containing your Supabase database user mappings
-db_user_mappings_path = "supabase/db_user_mappings"
-
-# Path to the directory containing your Supabase database publications
-db_publications_path = "supabase/db_publications"
-
-# Path to the directory containing your Supabase database subscriptions
-db_subscriptions_path = "supabase/db_subscriptions"
-
-# Path to the directory containing your Supabase database event triggers
-db_event_triggers_path = "supabase/db_event_triggers"
-
-# Path to the directory containing your Supabase database row security policies
-db_row_security_policies_path = "supabase/db_row_security_policies"
-
-# Path to the directory containing your Supabase database policies
-db_policies_path = "supabase/db_policies"
-
-# Path to the directory containing your Supabase database roles
-db_roles_path = "supabase/db_roles"
-
-# Path to the directory containing your Supabase database schemas
-db_schemas_path = "supabase/db_schemas"
-
-# Path to the directory containing your Supabase database foreign data wrappers
-db_fdw_path = "supabase/db_fdw"
-
-# Path to the directory containing your Supabase database foreign tables
-db_foreign_tables_path = "supabase/db_foreign_tables"
-
-# Path to the directory containing your Supabase database foreign servers
-db_foreign_servers_path = "supabase/db_foreign_servers"
-
-# Path to the directory containing your Supabase database user mappings
-db_user_mappings_path = "supabase/db_user_mappings"
-
-# Path to the directory containing your Supabase database publications
-db_publications_path = "supabase/db_publications"
-
-# Path to the directory containing your Supabase database subscriptions
-db_subscriptions_path = "supabase/db_subscriptions"
-
-# Path to the directory containing your Supabase database event triggers
-db_event_triggers_path = "supabase/db_event_triggers"
-
-# Path to the directory containing your Supabase database row security policies
-db_row_security_policies_path = "supabase/db_row_security_policies"
+[telemetry]
+# Whether to enable telemetry.
+# enabled = true

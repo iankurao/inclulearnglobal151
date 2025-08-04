@@ -104,3 +104,6 @@ INSERT INTO public.health_specialists (name, speciality, location, phone, email,
 ('Dr. Michael Ochieng', 'Physical Therapy', 'Nakuru', '+254 744 456789', 'michael.ochieng@email.com', 10, 4.6, 'KSh 2,800/session', 'Expert in cerebral palsy and motor development'),
 ('Dr. Ruth Njeri', 'Psychological Assessment', 'Eldoret', '+254 755 567890', 'ruth.njeri@email.com', 15, 4.8, 'KSh 5,000/assessment', 'Comprehensive psychological evaluations for learning disabilities'),
 ('Dr. Peter Makau', 'Audiologist', 'Thika', '+254 766 678901', 'peter.makau@email.com', 7, 4.5, 'KSh 3,500/session', 'Hearing assessments and auditory processing support');
+
+-- This is an empty migration file.
+-- It is typically used as a placeholder or for initial setup.
