@@ -28,8 +28,8 @@ export default function MainAppClient() {
       await signOut()
       toast.success("Signed out successfully!")
     } catch (error) {
-      console.error("Error signing out:", error)
       toast.error("Failed to sign out.")
+      console.error("Sign out error:", error)
     }
   }
 

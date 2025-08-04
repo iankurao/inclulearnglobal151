@@ -9,7 +9,6 @@ import HealthSpecialistFlow from "@/components/HealthSpecialistFlow"
 import SchoolSearchFlow from "@/components/SchoolSearchFlow"
 import OutdoorClubsFlow from "@/components/OutdoorClubsFlow"
 import { toast } from "sonner"
-import MainAppClient from "@/components/MainAppClient"
 
 export default function HomePage() {
   const { user, loading, signOut } = useAuth()
@@ -101,9 +100,7 @@ export default function HomePage() {
           </Button>
         </div>
       </header>
-      <main className="p-8">
-        <MainAppClient />
-      </main>
+      <main className="p-8">{renderFlowComponent()}</main>
     </div>
   )
 }
