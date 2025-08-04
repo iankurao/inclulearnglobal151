@@ -25,3 +25,7 @@ USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own search history."
 ON public.search_history FOR INSERT
 WITH CHECK (auth.uid() = user_id);
+
+-- This is an empty migration file.
+-- It serves as a placeholder for future schema changes.
+-- You can add SQL statements here to modify your database schema.

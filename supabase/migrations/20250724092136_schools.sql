@@ -2,15 +2,14 @@
 CREATE TABLE IF NOT EXISTS public.schools (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
+  type TEXT NOT NULL, -- e.g., "Primary", "Secondary", "Special Needs School"
   location TEXT NOT NULL,
-  specialization TEXT NOT NULL,
-  programs TEXT[],
-  contact_info TEXT,
-  description TEXT,
+  special_needs_support TEXT, -- e.g., "Autism Spectrum", "ADHD", "Learning Disabilities"
+  curriculum TEXT,
+  contact_email TEXT,
+  phone_number TEXT,
   website TEXT,
-  email TEXT UNIQUE,
-  phone TEXT,
-  rating NUMERIC(2,1),
+  description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -26,110 +25,107 @@ CREATE POLICY "Authenticated users can insert schools." ON public.schools
   FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
 CREATE POLICY "Authenticated users can update their own schools." ON public.schools
-  FOR UPDATE USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+  FOR UPDATE USING (auth.role() = 'authenticated'); -- Updated to check role instead of user_id
 
 CREATE POLICY "Authenticated users can delete their own schools." ON public.schools
-  FOR DELETE USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+  FOR DELETE USING (auth.role() = 'authenticated'); -- Updated to check role instead of user_id
+
+-- Trigger for schools table
+CREATE TRIGGER update_schools_timestamp
+BEFORE UPDATE ON public.schools
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
 -- Insert sample data
 INSERT INTO public.schools (
-  name, location, specialization, programs, contact_info, description, website, email, phone, rating
+  name, location, type, special_needs_support, curriculum, contact_email, phone_number, website, description
 ) VALUES 
 (
   'Nairobi Special Needs Academy',
   'Nairobi, Westlands',
-  'special_needs',
-  ARRAY['Autism Support', 'Speech Therapy', 'Occupational Therapy', 'Behavioral Support'],
-  'Contact: +254-700-111111, info@nairobisna.ac.ke',
-  'Specialized school for children with autism, ADHD, and other developmental disabilities. Small class sizes with individualized education plans.',
-  'www.nairobisna.ac.ke',
+  'Special Needs School',
+  'Autism Spectrum',
+  'IB Program',
   'info@nairobisna.ac.ke',
   '+254-700-111111',
-  4.5
+  'www.nairobisna.ac.ke',
+  'Specialized school for children with autism, ADHD, and other developmental disabilities. Small class sizes with individualized education plans.'
 ),
 (
   'Mombasa Inclusive Primary School',
   'Mombasa, Nyali',
-  'public',
-  ARRAY['Inclusive Education', 'Special Needs Support', 'Remedial Classes'],
-  'Contact: +254-700-222222, info@mombasainclusive.sc.ke',
-  'Public school with strong inclusive education program. Welcomes children with disabilities alongside typical peers.',
-  'www.mombasainclusive.sc.ke',
+  'Primary',
+  'ADHD',
+  'Cambridge Curriculum',
   'info@mombasainclusive.sc.ke',
   '+254-700-222222',
-  4.7
+  'www.mombasainclusive.sc.ke',
+  'Public school with strong inclusive education program. Welcomes children with disabilities alongside typical peers.'
 ),
 (
   'Kisumu International School',
   'Kisumu, Milimani',
-  'international',
-  ARRAY['IB Program', 'Special Education Services', 'Gifted and Talented'],
-  'Contact: +254-700-333333, admissions@kisumuint.ac.ke',
-  'International school offering IB curriculum with comprehensive special education services and support for diverse learners.',
-  'www.kisumuint.ac.ke',
+  'International',
+  'Learning Disabilities',
+  'IB Program',
   'admissions@kisumuint.ac.ke',
   '+254-700-333333',
-  4.8
+  'www.kisumuint.ac.ke',
+  'International school offering IB curriculum with comprehensive special education services and support for diverse learners.'
 ),
 (
   'Eldoret Community School',
   'Eldoret, Kapsoya',
-  'private',
-  ARRAY['Learning Disabilities Support', 'Counseling Services', 'Peer Tutoring'],
-  'Contact: +254-700-444444, info@eldoretcommunity.sc.ke',
-  'Community-focused private school with dedicated support for children with learning disabilities and behavioral challenges.',
-  'www.eldoretcommunity.sc.ke',
+  'Private',
+  'Learning Disabilities',
+  'Cambridge Curriculum',
   'info@eldoretcommunity.sc.ke',
   '+254-700-444444',
-  4.6
+  'www.eldoretcommunity.sc.ke',
+  'Community-focused private school with dedicated support for children with learning disabilities and behavioral challenges.'
 ),
 (
   'Nakuru Autism Center School',
   'Nakuru, Milimani',
-  'special_needs',
-  ARRAY['Applied Behavior Analysis', 'Speech Therapy', 'Life Skills Training'],
-  'Contact: +254-700-555555, info@nakuruautism.ac.ke',
-  'Specialized school exclusively for children with autism spectrum disorders. Evidence-based interventions and family support.',
-  'www.nakuruautism.ac.ke',
+  'Special Needs School',
+  'Autism Spectrum',
+  'IB Program',
   'info@nakuruautism.ac.ke',
   '+254-700-555555',
-  4.4
+  'www.nakuruautism.ac.ke',
+  'Specialized school exclusively for children with autism spectrum disorders. Evidence-based interventions and family support.'
 ),
 (
   'Thika Inclusive Secondary School',
   'Thika, Blue Post',
-  'public',
-  ARRAY['Inclusive Education', 'Vocational Training', 'Career Counseling'],
-  'Contact: +254-700-666666, info@thikainclusive.sc.ke',
-  'Public secondary school with strong commitment to inclusive education and preparing students with disabilities for higher education or employment.',
-  'www.thikainclusive.sc.ke',
+  'Secondary',
+  'ADHD',
+  'Cambridge Curriculum',
   'info@thikainclusive.sc.ke',
   '+254-700-666666',
-  4.3
+  'www.thikainclusive.sc.ke',
+  'Public secondary school with strong commitment to inclusive education and preparing students with disabilities for higher education or employment.'
 ),
 (
   'Machakos Special Education Center',
   'Machakos, Town',
-  'special_needs',
-  ARRAY['Intellectual Disabilities Support', 'Physical Therapy', 'Adaptive PE'],
-  'Contact: +254-700-777777, info@machakosspecial.ac.ke',
-  'Specialized center for children with intellectual and physical disabilities. Focus on functional life skills and community integration.',
-  'www.machakosspecial.ac.ke',
+  'Special Needs School',
+  'Intellectual and Physical Disabilities',
+  'IB Program',
   'info@machakosspecial.ac.ke',
   '+254-700-777777',
-  4.2
+  'www.machakosspecial.ac.ke',
+  'Specialized center for children with intellectual and physical disabilities. Focus on functional life skills and community integration.'
 ),
 (
   'Karen International Academy',
   'Nairobi, Karen',
-  'international',
-  ARRAY['Cambridge Curriculum', 'Learning Support', 'Gifted Education'],
-  'Contact: +254-700-888888, admissions@karenacademy.ac.ke',
-  'Premium international school offering Cambridge curriculum with comprehensive learning support services for students with diverse needs.',
-  'www.karenacademy.ac.ke',
+  'International',
+  'Learning Disabilities',
+  'Cambridge Curriculum',
   'admissions@karenacademy.ac.ke',
   '+254-700-888888',
-  4.9
+  'www.karenacademy.ac.ke',
+  'Premium international school offering Cambridge curriculum with comprehensive learning support services for students with diverse needs.'
 );
 
 -- This is an auto-generated migration file by Supabase CLI.

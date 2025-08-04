@@ -1,36 +1,40 @@
--- This is an auto-generated migration file by Supabase CLI.
--- It's typically used for schema changes.
--- The content is usually specific to your database state at the time of generation.
--- For a complete setup, refer to `supabase/complete_setup.sql`.
+-- This migration is for seeding initial vector data.
+-- It's typically run after the `add_vector_support.sql` migration.
 
--- Insert sample schools data
-INSERT INTO schools (name, location, description, specialties, fees, rating, age_range, contact_email, contact_phone, accessibility_features, therapy_services) VALUES
-('Sunshine Special School', 'Nairobi', 'Premier inclusive education with specialized therapy programs and individualized learning plans', ARRAY['Autism', 'ADHD', 'Learning Disabilities'], 'KSh 85,000/term', 4.8, '3-18 years', 'info@sunshinespecial.co.ke', '+254 711 123456', ARRAY['Wheelchair accessible', 'Sensory rooms', 'Adaptive technology'], ARRAY['Speech therapy', 'Occupational therapy', 'Behavioral therapy']),
-('Hope Valley Academy', 'Mombasa', 'Innovative learning approaches for children with diverse needs and comprehensive support services', ARRAY['Dyslexia', 'Learning Disabilities', 'ADHD'], 'KSh 65,000/term', 4.6, '5-16 years', 'admissions@hopevalley.co.ke', '+254 722 234567', ARRAY['Visual aids', 'Hearing loops', 'Modified equipment'], ARRAY['Educational therapy', 'Psychological support']),
-('Rainbow Bridge School', 'Kisumu', 'Fully accessible campus with expert physiotherapy support and inclusive environment', ARRAY['Cerebral Palsy', 'Physical Disabilities', 'Multiple Disabilities'], 'KSh 75,000/term', 4.7, '4-17 years', 'contact@rainbowbridge.co.ke', '+254 733 345678', ARRAY['Wheelchair accessible', 'Physiotherapy equipment', 'Adaptive sports'], ARRAY['Physical therapy', 'Occupational therapy', 'Speech therapy']),
-('Bright Minds Academy', 'Nakuru', 'Specialized education for gifted children with learning differences', ARRAY['Autism', 'Giftedness', 'Twice Exceptional'], 'KSh 95,000/term', 4.9, '6-18 years', 'info@brightminds.co.ke', '+254 744 456789', ARRAY['Sensory-friendly', 'Technology integration'], ARRAY['Cognitive behavioral therapy', 'Social skills training']),
-('Unity Special School', 'Eldoret', 'Community-focused education with strong family involvement programs', ARRAY['Down Syndrome', 'Intellectual Disabilities', 'Autism'], 'KSh 55,000/term', 4.5, '3-16 years', 'unity@specialeducation.co.ke', '+254 755 567890', ARRAY['Family support center', 'Community integration'], ARRAY['Life skills training', 'Vocational therapy']),
-('Bright Future Academy', 'Nairobi', 'A school dedicated to providing individualized education for children with autism.', ARRAY['Autism Spectrum Disorder'], 'KSh 85,000/term', 4.7, '6-18 years', 'info@brightfuture.org', '+254701122334', ARRAY['Individualized learning plans', 'Sensory integration'], ARRAY['Early Intervention', 'Primary Education']),
-('Inclusive Learning Center', 'Kisumu', 'Creating an inclusive environment for students with diverse learning needs.', ARRAY['Down Syndrome', 'Learning Disabilities'], 'KSh 75,000/term', 4.5, '5-16 years', 'contact@inclusivelearning.org', '+254702233445', ARRAY['Inclusive environment', 'Supportive programs'], ARRAY['Primary Education', 'Secondary Education']),
-('Hope Springs School', 'Mombasa', 'Specialized education and therapy for children with physical disabilities.', ARRAY['Cerebral Palsy', 'Physical Disabilities'], 'KSh 65,000/term', 4.8, '4-17 years', 'admin@hopesprings.org', '+254703344556', ARRAY['Therapeutic education', 'Rehabilitation programs'], ARRAY['Therapeutic Education', 'Rehabilitation Programs']);
+-- You would typically run a script (e.g., a Python script) to generate embeddings
+-- for your existing data and then insert/update them into the respective tables.
 
--- Insert sample outdoor clubs data
-INSERT INTO outdoor_clubs (name, location, description, activities, age_range, rating, accessibility_features, contact_email, contact_phone, meeting_schedule, fees) VALUES
-('Nature Explorers Club', 'Nairobi - Central Park', 'Weekly nature walks and hands-on science activities for children with special needs', ARRAY['Nature walks', 'Science experiments', 'Wildlife observation'], '6-12 years', 4.8, ARRAY['Wheelchair-accessible trails', 'Sensory-friendly activities'], 'info@natureexplorers.co.ke', '+254 766 678901', 'Saturdays 9AM-12PM', 'KSh 2,000/month'),
-('Young Artists Collective', 'Mombasa - Community Arts Center', 'Creative workshops combining visual arts and theater for inclusive expression', ARRAY['Painting', 'Drama', 'Sculpture', 'Music'], '5-15 years', 4.9, ARRAY['Autism-friendly environment', 'Visual aids', 'Adaptive tools'], 'contact@youngartists.co.ke', '+254 777 789012', 'Wednesdays & Saturdays 2PM-5PM', 'KSh 3,500/month'),
-('Little Athletes Club', 'Kisumu - Sports Complex', 'Inclusive sports program focused on fun and skill development', ARRAY['Adapted sports', 'Swimming', 'Track and field'], '4-10 years', 4.7, ARRAY['Modified equipment', 'Trained coaches', 'Medical support'], 'sports@littleathletes.co.ke', '+254 788 890123', 'Tuesdays & Thursdays 4PM-6PM', 'KSh 4,000/month'),
-('Adventure Scouts', 'Nakuru - Outdoor Center', 'Outdoor adventures and camping experiences adapted for special needs', ARRAY['Camping', 'Hiking', 'Team building', 'Survival skills'], '8-16 years', 4.6, ARRAY['Accessible camping facilities', 'Medical supervision'], 'adventures@scouts.co.ke', '+254 799 901234', 'Monthly weekend trips', 'KSh 5,000/month'),
-('Creative Minds Workshop', 'Eldoret - Innovation Hub', 'STEM and robotics activities designed for neurodiverse learners', ARRAY['Robotics', 'Coding', 'Engineering', 'Mathematics'], '7-14 years', 4.8, ARRAY['Sensory-friendly workspace', 'Assistive technology'], 'stem@creativeminds.co.ke', '+254 700 012345', 'Saturdays 10AM-1PM', 'KSh 3,000/month'),
-('Nature Explorers Club', 'Karura Forest, Nairobi', 'An inclusive club for children to explore nature and develop outdoor skills.', ARRAY['Hiking & Nature Walks'], '5-12 years', 4.6, ARRAY['Accessible trails', 'Sensory-friendly activities'], 'info@natureexplorers.org', '+254704455667', 'Saturdays 9 AM - 12 PM', 'KSh 2,000/month'),
-('Adaptive Sports League', 'Moi International Sports Centre, Kasarani', 'Promoting adaptive sports for individuals with physical disabilities.', ARRAY['Wheelchair Basketball'], 'All ages', 4.9, ARRAY['Accessible facilities', 'Medical supervision'], 'sports@adaptivesports.org', '+254705566778', 'Sundays 2 PM - 4 PM', 'KSh 3,500/month'),
-('Sensory Garden Club', 'Arboretum, Nairobi', 'A therapeutic gardening club focusing on sensory experiences for young children.', ARRAY['Gardening & Sensory Play'], '3-8 years', 4.7, ARRAY['Sensory-friendly garden', 'Therapeutic activities'], 'garden@sensorygarden.org', '+254706677889', 'Wednesdays 10 AM - 11 AM', 'KSh 2,000/month');
+-- Example of updating embeddings for existing data (conceptual, not direct SQL execution):
+-- For health_specialists:
+-- UPDATE public.health_specialists
+-- SET description_embedding = generate_embedding(description) -- assuming generate_embedding is a function or external process
+-- WHERE description_embedding IS NULL;
 
--- Seed initial data into health_specialists
-INSERT INTO public.health_specialists (name, specialty, location, contact_info, description, services, qualifications, experience_years, rating, website, email, phone)
-VALUES
-('Dr. Jane Doe', 'Pediatric Occupational Therapist', 'Nairobi', 'jane.doe@example.com', 'Specializes in sensory integration and fine motor skills.', '{"Sensory Integration Therapy", "Fine Motor Skills Development"}', '{"MSc Occupational Therapy", "Certified SI Therapist"}', 10, 4.8, 'https://janedoeot.com', 'jane.doe@example.com', '+254712345678'),
-('Mr. John Smith', 'Speech-Language Pathologist', 'Mombasa', 'john.smith@example.com', 'Focuses on early language development and articulation.', '{"Articulation Therapy", "Language Delay Intervention"}', '{"BSc Speech Pathology", "ASHA Certified"}', 7, 4.5, 'https://johnsmithslp.com', 'john.smith@example.com', '+254723456789'),
-('Ms. Emily White', 'Physical Therapist', 'Kisumu', 'emily.white@example.com', 'Expert in gross motor skills and mobility for children with special needs.', '{"Gross Motor Development", "Mobility Training"}', '{"DPT Physical Therapy", "Pediatric PT Specialist"}', 12, 4.9, 'https://emilywhitept.com', 'emily.white@example.com', '+254734567890');
+-- For schools:
+-- UPDATE public.schools
+-- SET description_embedding = generate_embedding(description)
+-- WHERE description_embedding IS NULL;
 
--- Note: The 'embedding' columns will be populated by the Python script `generate_embeddings.py`
--- after this initial data seeding. This SQL script only seeds the non-embedding data.
+-- For outdoor_clubs:
+-- UPDATE public.outdoor_clubs
+-- SET description_embedding = generate_embedding(description)
+-- WHERE description_embedding IS NULL;
+
+-- For demonstration purposes, if you have a small dataset, you might manually insert
+-- or update with dummy embeddings, but for production, use an external embedding service.
+
+-- Example of inserting dummy embeddings for existing data (for testing purposes only):
+-- UPDATE public.health_specialists
+-- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
+-- WHERE description_embedding IS NULL;
+
+-- UPDATE public.schools
+-- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
+-- WHERE description_embedding IS NULL;
+
+-- UPDATE public.outdoor_clubs
+-- SET description_embedding = ARRAY(SELECT random() FROM generate_series(1, 1536))::VECTOR(1536)
+-- WHERE description_embedding IS NULL;
+
+-- In a real application, you would run the `scripts/generate_embeddings.py`
+-- script to populate these columns with actual embeddings.

@@ -39,3 +39,18 @@ build/
 supabase/.temp/
 supabase/db/
 supabase/functions/
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+*.pem
+.turbo

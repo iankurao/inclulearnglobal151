@@ -31,4 +31,8 @@ CREATE POLICY "Users can update their own preferences."
 ON public.user_preferences FOR UPDATE
 USING (auth.uid() = user_id);
 
+-- This is an empty migration file.
+-- It serves as a placeholder for future schema changes.
+-- You can add SQL statements here to modify your database schema.
+
 -- /** rest of code here **/

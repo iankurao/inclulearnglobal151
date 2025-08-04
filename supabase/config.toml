@@ -4,7 +4,18 @@
 [project]
 # Project ID from Supabase Dashboard
 # e.g. 'aaaaaaaaaaaaaaaaaaaa'
-id = ""
+id = "your-project-ref" # Replace with your Supabase project reference
+name = "inclulearnglobal"
+db_url = "postgresql://postgres:[YOUR-PASSWORD]@db.your-project-ref.supabase.co:5432/postgres" # Replace with your database URL
+db_user = "postgres"
+db_password = "your-db-password" # Replace with your database password
+db_host = "db.your-project-ref.supabase.co" # Replace with your database host
+db_port = 5432
+db_name = "postgres"
+db_schemas = ["public", "storage", "graphql_public"]
+db_anon_role = "anon"
+db_authenticated_role = "authenticated"
+db_service_role_key = "your-service-role-key" # Replace with your Supabase service role key
 
 [db]
 # The database URL to connect to when running commands.
@@ -43,6 +54,7 @@ migrations_path = "supabase/migrations"
 [realtime]
 # The path to the realtime folder.
 # path = "supabase/realtime"
+enabled = true
 
 [graphql]
 # The path to the GraphQL folder.
@@ -51,10 +63,12 @@ migrations_path = "supabase/migrations"
 [studio]
 # The port to use for the Supabase Studio.
 # port = 54323
+port = 8000
 
 [inbucket]
 # The port to use for the Inbucket email server.
 # port = 54324
+port = 5433
 
 [gotrue]
 # The port to use for the GoTrue authentication server.
@@ -75,3 +89,13 @@ migrations_path = "supabase/migrations"
 [telemetry]
 # Whether to enable telemetry.
 # enabled = true
+
+[auth]
+site_url = "http://localhost:3000" # Replace with your deployed URL in production
+additional_redirect_urls = []
+mfa_enabled = false
+sms_provider = "twilio"
+email_provider = "supabase"
+email_otp_enabled = true
+email_change_enabled = true
+disable_signup = false

@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect, useCallback } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 
 interface AuthContextType {
@@ -16,64 +15,58 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
 
-  const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-    if (error) {
-      console.error("Error fetching user:", error)
-      setUser(null)
-    } else {
-      setUser(user)
-    }
-    setLoading(false)
-  }, [supabase])
-
   useEffect(() => {
-    fetchUser()
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null)
       setLoading(false)
       if (event === "SIGNED_OUT") {
         router.push("/auth")
-      } else if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         router.push("/")
       }
     })
 
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null)
+      setLoading(false)
+    })
+
     return () => {
-      authListener.unsubscribe()
+      authListener.subscription.unsubscribe()
     }
-  }, [supabase, fetchUser, router])
+  }, [router, supabase])
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
-    if (error) throw error
+    if (error) {
+      throw error
+    }
   }
 
   const signUp = async (email: string, password: string) => {
     setLoading(true)
     const { error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
-    if (error) throw error
+    if (error) {
+      throw error
+    }
   }
 
   const signOut = async () => {
     setLoading(true)
     const { error } = await supabase.auth.signOut()
     setLoading(false)
-    if (error) throw error
+    if (error) {
+      throw error
+    }
   }
 
   return <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>{children}</AuthContext.Provider>

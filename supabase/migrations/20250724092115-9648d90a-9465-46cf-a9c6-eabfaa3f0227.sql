@@ -41,3 +41,7 @@ USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column
 CREATE POLICY "Authenticated users can delete their own health_specialists."
 ON public.health_specialists FOR DELETE
 USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+
+-- This is an empty migration file.
+-- It serves as a placeholder for future schema changes.
+-- You can add SQL statements here to modify your database schema.

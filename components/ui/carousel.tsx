@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button"
 type CarouselContextProps = {
   carouselRef: UseEmblaCarouselType[0]
   api: UseEmblaCarouselType[1]
-  scrollNext: () => void
   scrollPrev: () => void
+  scrollNext: () => void
   canScrollPrev: boolean
   canScrollNext: boolean
 } & React.ComponentPropsWithoutRef<"div">
@@ -28,11 +28,11 @@ function useCarousel() {
   return context
 }
 
-type CarouselProps = React.ComponentPropsWithoutRef<"div"> & {
+type CarouselProps = {
   opts?: React.ComponentProps<typeof useEmblaCarousel>[0]
   orientation?: "horizontal" | "vertical"
   setApi?: (api: UseEmblaCarouselType[1]) => void
-}
+} & React.ComponentPropsWithoutRef<"div">
 
 const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
   ({ opts, orientation = "horizontal", setApi, className, children, ...props }, ref) => {
@@ -43,11 +43,7 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
 
-    const onSelect = React.useCallback((api: UseEmblaCarouselType[1]) => {
-      if (!api) {
-        return
-      }
-
+    const onSelect = React.useCallback((api: any) => {
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
     }, [])
@@ -78,12 +74,12 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
         return
       }
 
-      onSelect(api)
-      api.on("reInit", onSelect)
+      setApi?.(api)
       api.on("select", onSelect)
+      api.on("reInit", onSelect)
 
-      if (setApi) {
-        setApi(api)
+      return () => {
+        api?.off("select", onSelect)
       }
     }, [api, onSelect, setApi])
 
@@ -92,11 +88,11 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
         value={{
           carouselRef,
           api: api,
-          scrollNext,
           scrollPrev,
+          scrollNext,
           canScrollPrev,
           canScrollNext,
-          orientation: orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
+          orientation,
         }}
       >
         <div

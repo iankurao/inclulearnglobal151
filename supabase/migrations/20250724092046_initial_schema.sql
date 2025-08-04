@@ -1,47 +1,40 @@
--- Enable necessary extensions
+-- Initial schema for IncluLearn Global
+
+-- Enable the `uuid-ossp` extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create profiles table for user data
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  email TEXT,
-  full_name TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- Create the `health_specialists` table
+CREATE TABLE public.health_specialists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    specialty TEXT NOT NULL,
+    location TEXT NOT NULL,
+    experience_years INT,
+    contact_email TEXT,
+    phone_number TEXT,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+-- Set up Row Level Security (RLS) for `health_specialists`
+ALTER TABLE public.health_specialists ENABLE ROW LEVEL SECURITY;
 
--- Create policies
-CREATE POLICY "Users can view own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Enable read access for all users" ON public.health_specialists FOR SELECT USING (TRUE);
+CREATE POLICY "Enable insert for authenticated users" ON public.health_specialists FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Enable update for authenticated users" ON public.health_specialists FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Enable delete for authenticated users" ON public.health_specialists FOR DELETE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Users can update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Users can insert own profile" ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
--- Create function to handle user creation
-CREATE OR REPLACE FUNCTION handle_new_user()
+-- Function to update `updated_at` timestamp
+CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, email, full_name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
-  RETURN NEW;
+    NEW.updated_at = NOW();
+    RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
--- Create trigger for new user creation
-CREATE OR REPLACE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
--- This is an auto-generated migration file by Supabase CLI.
--- It's typically used for schema changes.
--- The content is usually specific to your database state at the time of generation.
--- For a complete setup, refer to `supabase/complete_setup.sql`.
-
--- This is an empty migration file.
--- It is typically used as a placeholder or for initial setup.
+-- Trigger for `health_specialists` table
+CREATE TRIGGER update_health_specialists_timestamp
+BEFORE UPDATE ON public.health_specialists
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();

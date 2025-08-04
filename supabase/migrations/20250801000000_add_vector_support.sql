@@ -4,14 +4,20 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Add embedding column to health_specialists table
 ALTER TABLE public.health_specialists
 ADD COLUMN embedding vector(1536); -- Assuming OpenAI's text-embedding-ada-002 which has 1536 dimensions
+ALTER TABLE public.health_specialists
+ADD COLUMN description_embedding VECTOR(1536); -- For OpenAI's text-embedding-ada-002
 
 -- Add embedding column to schools table
 ALTER TABLE public.schools
 ADD COLUMN embedding vector(1536);
+ALTER TABLE public.schools
+ADD COLUMN description_embedding VECTOR(1536);
 
 -- Add embedding column to outdoor_clubs table
 ALTER TABLE public.outdoor_clubs
 ADD COLUMN embedding vector(1536);
+ALTER TABLE public.outdoor_clubs
+ADD COLUMN description_embedding VECTOR(1536);
 
 -- Create a function for vector search on health_specialists
 CREATE OR REPLACE FUNCTION match_health_specialists (
@@ -172,5 +178,39 @@ BEGIN
   ORDER BY
     similarity DESC
   LIMIT match_count;
+END;
+$$;
+
+-- Create a function for vector similarity search
+CREATE OR REPLACE FUNCTION public.match_documents (
+  query_embedding VECTOR(1536),
+  match_threshold FLOAT,
+  match_count INT,
+  _table TEXT,
+  _column TEXT
+)
+RETURNS TABLE (
+  id UUID,
+  content TEXT,
+  similarity FLOAT
+)
+LANGUAGE plpgsql
+AS $$
+#variable_conflict use_column
+BEGIN
+  RETURN QUERY EXECUTE format('
+    SELECT
+      id,
+      %I AS content,
+      1 - (%I <=> $1) AS similarity
+    FROM
+      public.%I
+    WHERE
+      1 - (%I <=> $1) > $2
+    ORDER BY
+      %I <=> $1
+    LIMIT $3
+  ', _column, _column, _table, _column, _column)
+  USING query_embedding, match_threshold, match_count;
 END;
 $$;

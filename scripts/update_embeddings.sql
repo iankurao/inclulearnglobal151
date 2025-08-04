@@ -1,60 +1,20 @@
--- This script is intended to be run after initial data seeding
--- and after the `generate_embeddings.py` script has been executed
--- to update the `embedding` columns in the respective tables.
+-- This script is intended to be run after new data is inserted or existing data is updated
+-- in tables that require vector embeddings.
+-- It calls a Python script (generate_embeddings.py) to generate and update embeddings.
 
--- It assumes the `embedding` column already exists and is of type `vector(1536)`
--- The Python script will handle the actual updates.
--- This SQL file serves as a conceptual reminder or for manual updates if the Python script is not used.
+-- This is a conceptual script. In a real-world scenario, you would typically
+-- trigger the Python script via a webhook, a background job, or a Supabase Edge Function
+-- after data changes, rather than directly executing a Python script from SQL.
 
--- Example: Add vector column if it doesn't exist (run once)
--- ALTER TABLE health_specialists ADD COLUMN embedding vector(1536);
--- ALTER TABLE schools ADD COLUMN embedding vector(1536);
--- ALTER TABLE outdoor_clubs ADD COLUMN embedding vector(1536);
+-- Example of how you might conceptually trigger an update (not directly executable SQL):
+-- SELECT http_post('your_edge_function_url/generate-embeddings', '{"table": "health_specialists", "column": "description"}');
 
--- Example: Create a function for similarity search (if not already done by Supabase)
--- CREATE OR REPLACE FUNCTION match_documents (
---   query_embedding vector(1536),
---   match_threshold float,
---   match_count int,
---   table_name text
--- )
--- RETURNS TABLE (
---   id uuid,
---   content text,
---   similarity float
--- )
--- LANGUAGE plpgsql
--- AS $$
--- #variable_conflict use_column
--- BEGIN
---   RETURN query EXECUTE format('
---     SELECT
---       id,
---       description AS content, -- or other relevant text column
---       1 - (embedding <=> %L) AS similarity
---     FROM
---       %I
---     WHERE
---       1 - (embedding <=> %L) > %L
---     ORDER BY
---       similarity DESC
---     LIMIT %L
---   ', query_embedding, table_name, query_embedding, match_threshold, match_count);
--- END;
--- $$;
+-- For manual execution or integration with a CI/CD pipeline, you would run the Python script directly:
+-- python scripts/generate_embeddings.py
 
--- Example of updating health_specialists (assuming embeddings are generated externally)
--- This is a placeholder. In a real scenario, the Python script would directly update the table.
-UPDATE public.health_specialists
-SET embedding = '[...your_embedding_array...]'
-WHERE id = 1;
+-- The actual SQL part would be for creating the `match_documents` function if it's not already there,
+-- or for any other database-side operations related to embeddings.
+-- (The `match_documents` function is provided in `supabase/migrations/20250801000000_add_vector_support.sql`)
 
--- Example of updating schools
-UPDATE public.schools
-SET embedding = '[...your_embedding_array...]'
-WHERE id = 1;
-
--- Example of updating outdoor_clubs
-UPDATE public.outdoor_clubs
-SET embedding = '[...your_embedding_array...]'
-WHERE id = 1;
+-- No direct SQL commands to execute the Python script here.
+-- This file serves as a reminder/documentation for the embedding update process.

@@ -31,9 +31,13 @@ WITH CHECK (auth.role() = 'authenticated');
 -- Policy for authenticated users to update their own records (assuming user_id column for ownership)
 CREATE POLICY "Authenticated users can update their own schools."
 ON public.schools FOR UPDATE
-USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+USING (auth.uid() = user_id); -- Placeholder: replace 'user_id' with actual user_id column if exists
 
 -- Policy for authenticated users to delete their own records
 CREATE POLICY "Authenticated users can delete their own schools."
 ON public.schools FOR DELETE
-USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+USING (auth.uid() = user_id); -- Placeholder: replace 'user_id' with actual user_id column if exists
+
+-- This is an empty migration file.
+-- It serves as a placeholder for future schema changes.
+-- You can add SQL statements here to modify your database schema.

@@ -1,78 +1,74 @@
 import os
-import pandas as pd
+import openai
 from supabase import create_client, Client
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Initialize Supabase client
-SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
-SUPABASE_ANON_KEY = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+url: str = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") # Use service role key for server-side operations
+supabase: Client = create_client(url, key)
 
-if not SUPABASE_URL or not SUPABASE_ANON_KEY:
-    raise ValueError("Supabase URL and Anon Key must be set in .env file")
+# Initialize OpenAI client (ensure OPENAI_API_KEY is set in environment variables)
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+def generate_embedding(text: str):
+    """Generates an embedding for the given text using OpenAI's API."""
+    try:
+        response = openai.Embedding.create(
+            model="text-embedding-ada-002",
+            input=text
+        )
+        return response['data'][0]['embedding']
+    except Exception as e:
+        print(f"Error generating embedding: {e}")
+        return None
 
-# Dummy function to simulate embedding generation
-# In a real scenario, you would use an actual AI model API (e.g., OpenAI, Cohere)
-async def get_embedding(text: str) -> list[float]:
-    print(f"Generating dummy embedding for: {text[:50]}...")
-    # Replace this with actual API call to an embedding model
-    # Example:
-    # from openai import OpenAI
-    # client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    # response = client.embeddings.create(input=[text], model="text-embedding-ada-002")
-    # return response.data[0].embedding
-    return [0.1] * 1536 # Return a dummy embedding of 1536 dimensions
+def update_embeddings_for_table(table_name: str, text_column: str, embedding_column: str):
+    """
+    Fetches data from a Supabase table, generates embeddings for a specified text column,
+    and updates the corresponding embedding column.
+    """
+    print(f"Processing table: {table_name}")
+    try:
+        # Fetch data from the table
+        response = supabase.from(table_name).select(f"id, {text_column}").execute()
+        data = response.data
 
-async def generate_and_upload_embeddings():
-    # Health Specialists
-    health_specialists_data = [
-        {"id": 1, "name": "Dr. Jane Doe", "specialty": "Pediatric Occupational Therapist", "location": "Nairobi", "experience": "10+ years"},
-        {"id": 2, "name": "Mr. John Smith", "specialty": "Speech-Language Pathologist", "location": "Mombasa", "experience": "7 years"},
-        {"id": 3, "name": "Ms. Emily White", "specialty": "Physical Therapist", "location": "Kisumu", "experience": "12 years"},
-    ]
-    for specialist in health_specialists_data:
-        text_to_embed = f"{specialist['name']} is a {specialist['specialty']} with {specialist['experience']} experience, located in {specialist['location']}."
-        embedding = await get_embedding(text_to_embed)
-        response = supabase.table("health_specialists").update({"embedding": embedding}).eq("id", specialist["id"]).execute()
-        if response.data:
-            print(f"Updated embedding for health specialist {specialist['name']}")
-        else:
-            print(f"Error updating embedding for health specialist {specialist['name']}: {response.error}")
+        if not data:
+            print(f"No data found in {table_name}.")
+            return
 
-    # Schools
-    schools_data = [
-        {"id": 1, "name": "Bright Future Academy", "specialization": "Autism Spectrum Disorder", "location": "Nairobi", "programs": "Early Intervention, Primary"},
-        {"id": 2, "name": "Inclusive Learning Center", "specialization": "Down Syndrome, Learning Disabilities", "location": "Kisumu", "programs": "Primary, Secondary"},
-        {"id": 3, "name": "Hope Springs School", "specialization": "Cerebral Palsy, Physical Disabilities", "location": "Mombasa", "programs": "Therapeutic Education"},
-    ]
-    for school in schools_data:
-        text_to_embed = f"{school['name']} specializes in {school['specialization']} with programs like {school['programs']}, located in {school['location']}."
-        embedding = await get_embedding(text_to_embed)
-        response = supabase.table("schools").update({"embedding": embedding}).eq("id", school["id"]).execute()
-        if response.data:
-            print(f"Updated embedding for school {school['name']}")
-        else:
-            print(f"Error updating embedding for school {school['name']}: {response.error}")
+        for row in data:
+            item_id = row['id']
+            text_to_embed = row[text_column]
 
-    # Outdoor Clubs
-    outdoor_clubs_data = [
-        {"id": 1, "name": "Nature Explorers Club", "activity": "Hiking & Nature Walks", "location": "Karura Forest, Nairobi", "schedule": "Saturdays", "age_group": "5-12 years"},
-        {"id": 2, "name": "Adaptive Sports League", "activity": "Wheelchair Basketball", "location": "Moi International Sports Centre, Kasarani", "schedule": "Sundays", "age_group": "All ages"},
-        {"id": 3, "name": "Sensory Garden Club", "activity": "Gardening & Sensory Play", "location": "Arboretum, Nairobi", "schedule": "Wednesdays", "age_group": "3-8 years"},
-    ]
-    for club in outdoor_clubs_data:
-        text_to_embed = f"{club['name']} offers {club['activity']} activities on {club['schedule']} for {club['age_group']} in {club['location']}."
-        embedding = await get_embedding(text_to_embed)
-        response = supabase.table("outdoor_clubs").update({"embedding": embedding}).eq("id", club["id"]).execute()
-        if response.data:
-            print(f"Updated embedding for outdoor club {club['name']}")
-        else:
-            print(f"Error updating embedding for outdoor club {club['name']}: {response.error}")
+            if text_to_embed:
+                embedding = generate_embedding(text_to_embed)
+                if embedding:
+                    # Update the row with the new embedding
+                    update_response = supabase.from(table_name).update({embedding_column: embedding}).eq("id", item_id).execute()
+                    if update_response.data:
+                        print(f"Updated embedding for {table_name} ID: {item_id}")
+                    else:
+                        print(f"Failed to update embedding for {table_name} ID: {item_id}. Error: {update_response.error}")
+                else:
+                    print(f"Skipping {table_name} ID: {item_id} due to embedding generation failure.")
+            else:
+                print(f"Skipping {table_name} ID: {item_id} due to empty text in {text_column}.")
+
+    except Exception as e:
+        print(f"An error occurred while processing table {table_name}: {e}")
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(generate_and_upload_embeddings())
+    # Example usage for different tables
+    # Ensure your environment variables (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY) are set.
+
+    # For health_specialists
+    update_embeddings_for_table("health_specialists", "description", "description_embedding")
+
+    # For schools
+    update_embeddings_for_table("schools", "description", "description_embedding")
+
+    # For outdoor_clubs
+    update_embeddings_for_table("outdoor_clubs", "description", "description_embedding")
+
+    print("Embedding generation process completed.")

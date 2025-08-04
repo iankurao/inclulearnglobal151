@@ -136,10 +136,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEle
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        "flex h-full flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow",
-        className,
-      )}
+      className={cn("flex h-full max-h-screen flex-col overflow-y-auto border-r bg-background p-4", className)}
       {...props}
     />
   ),

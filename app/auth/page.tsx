@@ -1,6 +1,9 @@
 import AuthFormClient from "@/components/AuthFormClient"
 
-// This is a Server Component. It only renders the client component.
 export default function AuthPage() {
-  return <AuthFormClient />
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <AuthFormClient />
+    </div>
+  )
 }

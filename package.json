@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/auth-helpers-react": "^0.4.2",
+    "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@vitejs/plugin-react-swc": "latest",
     "class-variance-authority": "^0.7.1",

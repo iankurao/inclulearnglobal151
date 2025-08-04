@@ -1,40 +1,28 @@
--- Create outdoor_clubs table
+-- Create the `outdoor_clubs` table
 CREATE TABLE public.outdoor_clubs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
-    activity TEXT NOT NULL,
+    activity_type TEXT NOT NULL, -- e.g., "Hiking", "Art Therapy", "Sports"
     location TEXT NOT NULL,
+    age_group TEXT, -- e.g., "Children", "Teens", "Adults", "All Ages"
     schedule TEXT,
-    age_group TEXT,
-    contact_info TEXT,
-    description TEXT,
+    contact_email TEXT,
+    phone_number TEXT,
     website TEXT,
-    email TEXT UNIQUE,
-    phone TEXT,
-    rating NUMERIC(2,1),
+    description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS) for outdoor_clubs
+-- Set up Row Level Security (RLS) for `outdoor_clubs`
 ALTER TABLE public.outdoor_clubs ENABLE ROW LEVEL SECURITY;
 
--- Policy for public read access
-CREATE POLICY "Public outdoor_clubs are viewable by everyone."
-ON public.outdoor_clubs FOR SELECT
-USING (true);
+CREATE POLICY "Enable read access for all users on outdoor_clubs" ON public.outdoor_clubs FOR SELECT USING (TRUE);
+CREATE POLICY "Enable insert for authenticated users on outdoor_clubs" ON public.outdoor_clubs FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Enable update for authenticated users on outdoor_clubs" ON public.outdoor_clubs FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Enable delete for authenticated users on outdoor_clubs" ON public.outdoor_clubs FOR DELETE USING (auth.role() = 'authenticated');
 
--- Policy for authenticated users to insert
-CREATE POLICY "Authenticated users can insert outdoor_clubs."
-ON public.outdoor_clubs FOR INSERT
-WITH CHECK (auth.role() = 'authenticated');
-
--- Policy for authenticated users to update their own records (assuming user_id column for ownership)
-CREATE POLICY "Authenticated users can update their own outdoor_clubs."
-ON public.outdoor_clubs FOR UPDATE
-USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
-
--- Policy for authenticated users to delete their own records
-CREATE POLICY "Authenticated users can delete their own outdoor_clubs."
-ON public.outdoor_clubs FOR DELETE
-USING (auth.uid() = id); -- Placeholder: replace 'id' with actual user_id column if exists
+-- Trigger for `outdoor_clubs` table
+CREATE TRIGGER update_outdoor_clubs_timestamp
+BEFORE UPDATE ON public.outdoor_clubs
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();

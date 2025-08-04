@@ -106,4 +106,5 @@ INSERT INTO public.health_specialists (name, speciality, location, phone, email,
 ('Dr. Peter Makau', 'Audiologist', 'Thika', '+254 766 678901', 'peter.makau@email.com', 7, 4.5, 'KSh 3,500/session', 'Hearing assessments and auditory processing support');
 
 -- This is an empty migration file.
--- It is typically used as a placeholder or for initial setup.
+-- It serves as a placeholder for future schema changes.
+-- You can add SQL statements here to modify your database schema.
