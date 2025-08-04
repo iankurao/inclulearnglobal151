@@ -1,20 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search, MapPin, Activity } from "lucide-react"
 import { performVectorSearch } from "@/lib/vectorSearch"
 import { toast } from "sonner"
 
 interface OutdoorClub {
   id: string
   name: string
-  activity_type: string
   location: string
-  contact_email?: string
-  phone_number?: string
-  description?: string
+  description: string
+  activities_offered: string
+  contact_email: string
 }
 
 export default function OutdoorClubsFlow() {
@@ -23,68 +23,69 @@ export default function OutdoorClubsFlow() {
   const [loading, setLoading] = useState(false)
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      toast.info("Please enter a search query.")
-      return
-    }
     setLoading(true)
+    setClubs([])
     try {
       const results = await performVectorSearch(searchQuery, "outdoor_clubs", "description")
       setClubs(results as OutdoorClub[])
       if (results.length === 0) {
-        toast.info("No outdoor clubs found matching your query.")
-      } else {
-        toast.success(`${results.length} outdoor clubs found!`)
+        toast.info("No outdoor clubs found matching your search.")
       }
     } catch (error) {
-      console.error("Error searching for outdoor clubs:", error)
-      toast.error("Failed to search for outdoor clubs. Please try again.")
+      console.error("Failed to search outdoor clubs:", error)
+      toast.error("Failed to perform search. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>Find Outdoor Clubs</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" /> Search Outdoor Clubs
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by activity, location, or needs (e.g., 'hiking club Nairobi inclusive')"
+            placeholder="e.g., 'hiking club for visually impaired in Rift Valley' or 'adaptive sports club'"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSearch()
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button onClick={handleSearch} disabled={loading}>
             {loading ? "Searching..." : "Search"}
           </Button>
-        </div>
+        </CardContent>
+      </Card>
 
-        {clubs.length > 0 && (
-          <div className="grid gap-4">
-            <h3 className="text-lg font-semibold">Search Results:</h3>
-            {clubs.map((club) => (
-              <Card key={club.id} className="p-4">
-                <CardTitle className="text-xl">{club.name}</CardTitle>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {club.activity_type} - {club.location}
+      {clubs.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {clubs.map((club) => (
+            <Card key={club.id}>
+              <CardHeader>
+                <CardTitle>{club.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" /> {club.location}
                 </p>
-                {club.description && <p className="mt-2 text-sm">{club.description}</p>}
-                <div className="mt-2 text-sm">
-                  {club.contact_email && <p>Email: {club.contact_email}</p>}
-                  {club.phone_number && <p>Phone: {club.phone_number}</p>}
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                <p className="flex items-center gap-1">
+                  <Activity className="h-4 w-4" /> {club.activities_offered}
+                </p>
+                <p>{club.description}</p>
+                <p className="font-medium">Contact: {club.contact_email}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      {loading && (
+        <div className="flex justify-center p-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent" />
+        </div>
+      )}
+    </div>
   )
 }

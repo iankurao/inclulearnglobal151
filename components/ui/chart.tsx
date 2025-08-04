@@ -1,83 +1,51 @@
 "use client"
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  Bar,
-  BarChart,
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { type ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
+const data = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+]
 
-// Define the props for the Chart component
-interface ChartProps {
-  data: any[]
-  chartType: "line" | "bar" | "area"
-  config: ChartConfig
-  title?: string
-  description?: string
-  className?: string
-}
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig
 
-const Chart = ({ data, chartType, config, title, description, className }: ChartProps) => {
-  const ChartComponent = chartType === "line" ? LineChart : chartType === "bar" ? BarChart : AreaChart
-  const DataComponent = chartType === "line" ? Line : chartType === "bar" ? Bar : Area
-
+export function Component() {
   return (
-    <Card className={className}>
-      <CardHeader>
-        {title && <CardTitle>{title}</CardTitle>}
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={config} className="min-h-[200px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <ChartComponent data={data}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <YAxis tickLine={false} tickMargin={10} axisLine={false} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              {Object.entries(config).map(([key, item]) => {
-                if (item.type === chartType) {
-                  return (
-                    <DataComponent
-                      key={key}
-                      dataKey={key}
-                      type="monotone"
-                      stroke={item.color}
-                      fill={item.color}
-                      dot={false}
-                    />
-                  )
-                }
-                return null
-              })}
-            </ChartComponent>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+      <LineChart
+        accessibilityLayer
+        data={data}
+        margin={{
+          left: 12,
+          right: 12,
+        }}
+      >
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="month"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          tickFormatter={(value) => value.slice(0, 3)}
+        />
+        <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${value}`} />
+        <Tooltip content={<ChartTooltipContent hideLabel />} />
+        <Line dataKey="desktop" type="monotone" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
+        <Line dataKey="mobile" type="monotone" stroke="var(--color-mobile)" strokeWidth={2} dot={false} />
+      </LineChart>
+    </ChartContainer>
   )
 }
-
-export { Chart }

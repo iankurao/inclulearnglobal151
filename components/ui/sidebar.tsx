@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { buttonVariants } from "@/components/ui/button"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -132,28 +131,22 @@ const SidebarProvider = React.forwardRef<
 })
 SidebarProvider.displayName = "SidebarProvider"
 
-const Sidebar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+const SidebarComponent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("flex h-full max-h-screen flex-col overflow-y-auto border-r bg-background p-4", className)}
-      {...props}
-    />
+    <div ref={ref} className={cn("flex h-full w-full flex-col", className)} {...props} />
   ),
 )
-Sidebar.displayName = "Sidebar"
+SidebarComponent.displayName = "Sidebar"
 
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
+    <div ref={ref} className={cn("flex items-center justify-between p-4", className)} {...props} />
   ),
 )
 SidebarHeader.displayName = "SidebarHeader"
 
-const SidebarTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn("font-semibold leading-none tracking-tight", className)} {...props} />
-  ),
+const SidebarTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => <h3 ref={ref} className={cn("text-lg font-semibold", className)} {...props} />,
 )
 SidebarTitle.displayName = "SidebarTitle"
 
@@ -165,13 +158,13 @@ const SidebarDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttr
 SidebarDescription.displayName = "SidebarDescription"
 
 const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />,
+  ({ className, ...props }, ref) => <div ref={ref} className={cn("flex-1 p-4", className)} {...props} />,
 )
 SidebarContent.displayName = "SidebarContent"
 
 const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
+    <div ref={ref} className={cn("flex items-center justify-end p-4", className)} {...props} />
   ),
 )
 SidebarFooter.displayName = "SidebarFooter"
@@ -544,37 +537,47 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   items: {
     href: string
     title: string
+    icon: React.ElementType
   }[]
 }
 
-export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+export function CustomSidebar({ className, items, ...props }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <nav className={cn("flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1", className)} {...props}>
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            pathname === item.href ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline",
-            "justify-start",
-          )}
-        >
-          {item.title}
-        </Link>
-      ))}
-    </nav>
+    <div className={cn("pb-12", className)} {...props}>
+      <div className="space-y-4 py-4">
+        <div className="px-3 py-2">
+          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Discover</h2>
+          <div className="space-y-1">
+            {items.map((item) => {
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                    pathname === item.href ? "bg-accent text-accent-foreground" : "transparent",
+                  )}
+                >
+                  <Icon className="mr-3 h-5 w-5" />
+                  {item.title}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
 export {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -600,4 +603,5 @@ export {
   useSidebar,
   SidebarTitle,
   SidebarDescription,
+  SidebarComponent as Sidebar,
 }

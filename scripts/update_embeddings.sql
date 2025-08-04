@@ -1,23 +1,33 @@
--- This script is intended to be run manually or via a CI/CD pipeline
+-- This script is intended to be run manually or as part of a CI/CD pipeline
 -- after new data is added or existing data is updated in the tables.
--- It calls the `generate_embedding` function (which would be a Supabase Edge Function
--- or a custom function that interfaces with an embedding model)
--- and updates the `embedding` column for relevant rows.
+-- It assumes the 'generate_embeddings.py' script has been run to populate
+-- the 'vector_embedding' column.
 
--- Example for health_specialists table:
-UPDATE public.health_specialists
-SET embedding = generate_embedding(description)
-WHERE description IS NOT NULL AND embedding IS NULL;
+-- Example: Update embeddings for a specific health specialist
+-- UPDATE health_specialists
+-- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- WHERE id = 'some-specialist-id';
 
--- Example for schools table:
-UPDATE public.schools
-SET embedding = generate_embedding(description)
-WHERE description IS NOT NULL AND embedding IS NULL;
+-- Example: Update embeddings for a specific school
+-- UPDATE schools
+-- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- WHERE id = 'some-school-id';
 
--- Example for outdoor_clubs table:
-UPDATE public.outdoor_clubs
-SET embedding = generate_embedding(description)
-WHERE description IS NOT NULL AND embedding IS NULL;
+-- Example: Update embeddings for a specific outdoor club
+-- UPDATE outdoor_clubs
+-- SET vector_embedding = '[...new_embedding_array...]' -- Replace with actual embedding
+-- WHERE id = 'some-club-id';
 
--- You might want to add more sophisticated logic here,
--- e.g., only update if description has changed, or process in batches.
+-- Function to search for similar documents based on vector embedding
+-- This function is defined in supabase/migrations/20250801000000_add_vector_support.sql
+-- You can call it like this:
+-- SELECT * FROM match_documents(
+--   query_embedding := '[0.1, 0.2, 0.3, ...]', -- Replace with embedding of your query
+--   match_threshold := 0.78,
+--   match_count := 10,
+--   table_name := 'health_specialists'
+-- );
+
+-- Note: For bulk updates or initial population, it's recommended to use
+-- the Python script 'generate_embeddings.py' which automates this process
+-- by fetching data, generating embeddings via OpenAI, and updating Supabase.

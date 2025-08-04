@@ -1,90 +1,95 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search, MapPin, Briefcase, Star } from "lucide-react"
 import { performVectorSearch } from "@/lib/vectorSearch"
 import { toast } from "sonner"
 
-interface HealthSpecialist {
+interface Specialist {
   id: string
   name: string
   specialty: string
   location: string
-  contact_email?: string
-  phone_number?: string
-  description?: string
+  description: string
+  services_offered: string
+  rating: number
 }
 
 export default function HealthSpecialistFlow() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [specialists, setSpecialists] = useState<HealthSpecialist[]>([])
+  const [specialists, setSpecialists] = useState<Specialist[]>([])
   const [loading, setLoading] = useState(false)
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      toast.info("Please enter a search query.")
-      return
-    }
     setLoading(true)
+    setSpecialists([])
     try {
       const results = await performVectorSearch(searchQuery, "health_specialists", "description")
-      setSpecialists(results as HealthSpecialist[])
+      setSpecialists(results as Specialist[])
       if (results.length === 0) {
-        toast.info("No specialists found matching your query.")
-      } else {
-        toast.success(`${results.length} specialists found!`)
+        toast.info("No health specialists found matching your search.")
       }
     } catch (error) {
-      console.error("Error searching for specialists:", error)
-      toast.error("Failed to search for specialists. Please try again.")
+      console.error("Failed to search health specialists:", error)
+      toast.error("Failed to perform search. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>Find Health Specialists</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" /> Search Health Specialists
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by specialty, location, or needs (e.g., 'pediatric physical therapist Nairobi autism')"
+            placeholder="e.g., 'pediatrician for autism in Nairobi' or 'speech therapist for children'"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSearch()
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button onClick={handleSearch} disabled={loading}>
             {loading ? "Searching..." : "Search"}
           </Button>
-        </div>
+        </CardContent>
+      </Card>
 
-        {specialists.length > 0 && (
-          <div className="grid gap-4">
-            <h3 className="text-lg font-semibold">Search Results:</h3>
-            {specialists.map((specialist) => (
-              <Card key={specialist.id} className="p-4">
-                <CardTitle className="text-xl">{specialist.name}</CardTitle>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {specialist.specialty} - {specialist.location}
+      {specialists.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {specialists.map((specialist) => (
+            <Card key={specialist.id}>
+              <CardHeader>
+                <CardTitle>{specialist.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p className="flex items-center gap-1">
+                  <Briefcase className="h-4 w-4" /> {specialist.specialty}
                 </p>
-                {specialist.description && <p className="mt-2 text-sm">{specialist.description}</p>}
-                <div className="mt-2 text-sm">
-                  {specialist.contact_email && <p>Email: {specialist.contact_email}</p>}
-                  {specialist.phone_number && <p>Phone: {specialist.phone_number}</p>}
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                <p className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" /> {specialist.location}
+                </p>
+                <p className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> {specialist.rating.toFixed(1)}
+                </p>
+                <p>{specialist.description}</p>
+                <p className="font-medium">Services: {specialist.services_offered}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      {loading && (
+        <div className="flex justify-center p-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent" />
+        </div>
+      )}
+    </div>
   )
 }

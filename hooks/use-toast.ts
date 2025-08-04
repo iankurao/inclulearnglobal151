@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
-import { toast } from "@/components/ui/use-toast"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
@@ -13,7 +12,6 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  type?: "default" | "success" | "error" | "info" | "warning"
 }
 
 const actionTypes = {
@@ -23,31 +21,54 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
-type ActionType = typeof actionTypes
+let count = 0
 
-type State = {
-  toasts: ToasterToast[]
+function genId() {
+  count = (count + 1) % Number.MAX_SAFE_INTEGER
+  return count.toString()
 }
 
 type Action =
   | {
-      type: ActionType["ADD_TOAST"]
+      type: typeof actionTypes.ADD_TOAST
       toast: ToasterToast
     }
   | {
-      type: ActionType["UPDATE_TOAST"]
+      type: typeof actionTypes.UPDATE_TOAST
       toast: Partial<ToasterToast>
     }
   | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
+      type: typeof actionTypes.DISMISS_TOAST
+      toastId?: string
     }
   | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
+      type: typeof actionTypes.REMOVE_TOAST
+      toastId?: string
     }
 
-const reducer = (state: State, action: Action): State => {
+interface State {
+  toasts: ToasterToast[]
+}
+
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
+const addToRemoveQueue = (toastId: string) => {
+  if (toastTimeouts.has(toastId)) {
+    return
+  }
+
+  const timeout = setTimeout(() => {
+    toastTimeouts.delete(toastId)
+    dispatch({
+      type: actionTypes.REMOVE_TOAST,
+      toastId: toastId,
+    })
+  }, TOAST_REMOVE_DELAY)
+
+  toastTimeouts.set(toastId, timeout)
+}
+
+export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case actionTypes.ADD_TOAST:
       return {
@@ -66,19 +87,32 @@ const reducer = (state: State, action: Action): State => {
 
       // ! Side effects !
       if (toastId) {
-        return {
-          ...state,
-          toasts: state.toasts.map((t) => (t.id === toastId ? { ...t, open: false } : t)),
-        }
+        addToRemoveQueue(toastId)
       } else {
-        return {
-          ...state,
-          toasts: state.toasts.map((t) => ({ ...t, open: false })),
-        }
+        state.toasts.forEach((toast) => {
+          addToRemoveQueue(toast.id)
+        })
+      }
+
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === toastId || toastId === undefined
+            ? {
+                ...t,
+                open: false,
+              }
+            : t,
+        ),
       }
     }
-
     case actionTypes.REMOVE_TOAST:
+      if (action.toastId === undefined) {
+        return {
+          ...state,
+          toasts: [],
+        }
+      }
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),
@@ -95,7 +129,38 @@ function dispatch(action: Action) {
   listeners.forEach((listener) => listener(memoryState))
 }
 
-function useToast() {
+type Toast = Pick<ToasterToast, "id" | "duration" | "type" | "title" | "description" | "action">
+
+function toast({ ...props }: Toast) {
+  const id = genId()
+
+  const update = (props: Partial<ToasterToast>) =>
+    dispatch({
+      type: actionTypes.UPDATE_TOAST,
+      toast: { ...props, id },
+    })
+  const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id })
+
+  dispatch({
+    type: actionTypes.ADD_TOAST,
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss()
+      },
+    },
+  })
+
+  return {
+    id: id,
+    dismiss,
+    update,
+  }
+}
+
+export function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
@@ -109,12 +174,7 @@ function useToast() {
   }, [state])
 
   return {
+    ...state,
     toast,
   }
 }
-
-function genId() {
-  return Math.random().toString(36).substring(2, 9)
-}
-
-export { useToast }

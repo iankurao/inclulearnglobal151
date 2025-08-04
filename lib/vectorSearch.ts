@@ -1,25 +1,48 @@
-import { createClient } from "@/lib/supabase/client"
+import { createClient } from "@supabase/supabase-js"
+import { OpenAI } from "openai"
+import type { Database } from "@/integrations/supabase/types"
 
-const supabase = createClient()
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const openaiApiKey = process.env.OPENAI_API_KEY!
 
-export async function performVectorSearch(query: string, table: string, column: string, match_threshold = 0.8) {
-  // This is a placeholder for actual embedding generation.
-  // In a real application, you would use an AI model to generate embeddings for the query.
-  // For demonstration, we'll use a dummy embedding.
-  const dummyEmbedding = Array(1536).fill(0.1) // Assuming a 1536-dimension embedding
+const supabase = createClient<Database>(supabaseUrl, supabaseServiceRoleKey)
+const openai = new OpenAI({ apiKey: openaiApiKey })
 
-  const { data, error } = await supabase.rpc("match_documents", {
-    query_embedding: dummyEmbedding,
-    match_threshold: match_threshold,
-    match_count: 10,
-    _table: table,
-    _column: column,
+export async function generateEmbedding(text: string): Promise<number[]> {
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: text,
   })
+  return response.data[0].embedding
+}
 
-  if (error) {
-    console.error("Error performing vector search:", error)
+export async function performVectorSearch(
+  query: string,
+  table: string,
+  column: string,
+  match_threshold = 0.78,
+  limit = 10,
+) {
+  try {
+    const queryEmbedding = await generateEmbedding(query)
+
+    const { data, error } = await supabase.rpc("match_documents", {
+      query_embedding: queryEmbedding,
+      match_threshold: match_threshold,
+      match_count: limit,
+      table_name: table,
+      text_column: column, // Pass the text column name to the RPC function
+    })
+
+    if (error) {
+      console.error("Error performing vector search:", error)
+      return []
+    }
+    return data
+  } catch (error) {
+    console.error("Error in performVectorSearch:", error)
     return []
   }
-
-  return data
 }

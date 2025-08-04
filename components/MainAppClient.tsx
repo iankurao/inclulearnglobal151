@@ -2,19 +2,20 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Home, Stethoscope, School, Users, LogOut } from "lucide-react"
+import HealthSpecialistFlow from "@/components/HealthSpecialistFlow"
+import SchoolSearchFlow from "@/components/SchoolSearchFlow"
+import OutdoorClubsFlow from "@/components/OutdoorClubsFlow"
 import { useAuth } from "@/hooks/useAuth"
-import HealthSpecialistFlow from "./HealthSpecialistFlow"
-import SchoolSearchFlow from "./SchoolSearchFlow"
-import OutdoorClubsFlow from "./OutdoorClubsFlow"
-import { LogOutIcon, UserIcon, HeartIcon, HistoryIcon } from "lucide-react"
 import { toast } from "sonner"
+import { ModeToggle } from "@/components/mode-toggle"
 
-type FlowType = "specialists" | "schools" | "clubs" | "profile" | "favorites" | "history" | null
+type ActiveFlow = "home" | "specialists" | "schools" | "clubs"
 
 export default function MainAppClient() {
-  const { user, signOut } = useAuth()
-  const [activeFlow, setActiveFlow] = useState<FlowType>("specialists")
+  const [activeFlow, setActiveFlow] = useState<ActiveFlow>("home")
+  const { signOut } = useAuth()
 
   const handleSignOut = async () => {
     const { error } = await signOut()
@@ -25,71 +26,96 @@ export default function MainAppClient() {
     }
   }
 
+  const renderFlow = () => {
+    switch (activeFlow) {
+      case "specialists":
+        return <HealthSpecialistFlow />
+      case "schools":
+        return <SchoolSearchFlow />
+      case "clubs":
+        return <OutdoorClubsFlow />
+      case "home":
+      default:
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Welcome to IncluLearn Global</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Your comprehensive platform for connecting with special needs resources in Kenya. Use the navigation
+                  to explore different categories of resources.
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveFlow("specialists")}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Stethoscope className="h-5 w-5" /> Health Specialists
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>Find qualified health professionals specializing in various needs.</CardContent>
+              </Card>
+
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveFlow("schools")}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <School className="h-5 w-5" /> Schools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>Discover educational institutions offering inclusive learning environments.</CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveFlow("clubs")}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" /> Outdoor Clubs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>Explore clubs and activities promoting outdoor engagement for all abilities.</CardContent>
+              </Card>
+            </div>
+          </div>
+        )
+    }
+  }
+
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-gray-100 p-4 dark:bg-gray-900">
-      <header className="flex w-full max-w-6xl items-center justify-between rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
-        <h1 className="text-2xl font-bold text-primary">IncluLearn Global</h1>
+    <div className="flex min-h-screen w-full flex-col bg-gray-100 dark:bg-gray-950">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
+        <nav className="flex items-center space-x-4">
+          <Button variant="ghost" onClick={() => setActiveFlow("home")} className="flex items-center gap-2">
+            <Home className="h-5 w-5" />
+            <span className="font-semibold">IncluLearn Global</span>
+          </Button>
+          <Button variant="ghost" onClick={() => setActiveFlow("specialists")}>
+            Specialists
+          </Button>
+          <Button variant="ghost" onClick={() => setActiveFlow("schools")}>
+            Schools
+          </Button>
+          <Button variant="ghost" onClick={() => setActiveFlow("clubs")}>
+            Clubs
+          </Button>
+        </nav>
         <div className="flex items-center gap-4">
-          {user && <span className="text-gray-700 dark:text-gray-300">Welcome, {user.email || "User"}!</span>}
-          <Button variant="ghost" size="icon" onClick={() => setActiveFlow("profile")} aria-label="User Profile">
-            <UserIcon className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setActiveFlow("favorites")} aria-label="Favorites">
-            <HeartIcon className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setActiveFlow("history")} aria-label="Search History">
-            <HistoryIcon className="h-5 w-5" />
-          </Button>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOutIcon className="mr-2 h-4 w-4" />
-            Sign Out
+          <ModeToggle />
+          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <LogOut className="h-5 w-5" />
+            <span className="sr-only">Sign Out</span>
           </Button>
         </div>
       </header>
-
-      <nav className="mt-4 flex w-full max-w-6xl justify-center gap-4 rounded-lg bg-white p-3 shadow-md dark:bg-gray-800">
-        <Button
-          variant={activeFlow === "specialists" ? "default" : "ghost"}
-          onClick={() => setActiveFlow("specialists")}
-        >
-          Health Specialists
-        </Button>
-        <Button variant={activeFlow === "schools" ? "default" : "ghost"} onClick={() => setActiveFlow("schools")}>
-          Schools
-        </Button>
-        <Button variant={activeFlow === "clubs" ? "default" : "ghost"} onClick={() => setActiveFlow("clubs")}>
-          Outdoor Clubs
-        </Button>
-      </nav>
-
-      <main className="mt-4 w-full max-w-6xl">
-        {activeFlow === "specialists" && <HealthSpecialistFlow />}
-        {activeFlow === "schools" && <SchoolSearchFlow />}
-        {activeFlow === "clubs" && <OutdoorClubsFlow />}
-        {activeFlow === "profile" && (
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold">User Profile</h2>
-            <p className="mt-2">Email: {user?.email}</p>
-            <p className="mt-2 text-sm text-gray-500">
-              This section will be expanded to manage user preferences, profile details, etc.
-            </p>
-          </Card>
-        )}
-        {activeFlow === "favorites" && (
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold">My Favorites</h2>
-            <p className="mt-2 text-sm text-gray-500">
-              This section will display your favorited specialists, schools, and clubs.
-            </p>
-          </Card>
-        )}
-        {activeFlow === "history" && (
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold">Search History</h2>
-            <p className="mt-2 text-sm text-gray-500">This section will show your past search queries.</p>
-          </Card>
-        )}
-      </main>
+      <main className="flex-1 p-4 md:p-6">{renderFlow()}</main>
     </div>
   )
 }

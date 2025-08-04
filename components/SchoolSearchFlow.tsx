@@ -1,90 +1,91 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search, MapPin, GraduationCap } from "lucide-react"
 import { performVectorSearch } from "@/lib/vectorSearch"
 import { toast } from "sonner"
 
-interface School {
+interface SchoolType {
   id: string
   name: string
   location: string
-  education_level: string
-  contact_email?: string
-  phone_number?: string
-  description?: string
+  description: string
+  specialization: string
+  contact_email: string
 }
 
 export default function SchoolSearchFlow() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [schools, setSchools] = useState<School[]>([])
+  const [schools, setSchools] = useState<SchoolType[]>([])
   const [loading, setLoading] = useState(false)
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      toast.info("Please enter a search query.")
-      return
-    }
     setLoading(true)
+    setSchools([])
     try {
       const results = await performVectorSearch(searchQuery, "schools", "description")
-      setSchools(results as School[])
+      setSchools(results as SchoolType[])
       if (results.length === 0) {
-        toast.info("No schools found matching your query.")
-      } else {
-        toast.success(`${results.length} schools found!`)
+        toast.info("No schools found matching your search.")
       }
     } catch (error) {
-      console.error("Error searching for schools:", error)
-      toast.error("Failed to search for schools. Please try again.")
+      console.error("Failed to search schools:", error)
+      toast.error("Failed to perform search. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>Find Schools</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" /> Search Schools
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
           <Input
-            placeholder="Search by school name, location, or special needs programs (e.g., 'inclusive primary school Nairobi autism support')"
+            placeholder="e.g., 'inclusive primary school in Mombasa' or 'school for deaf children'"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSearch()
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button onClick={handleSearch} disabled={loading}>
             {loading ? "Searching..." : "Search"}
           </Button>
-        </div>
+        </CardContent>
+      </Card>
 
-        {schools.length > 0 && (
-          <div className="grid gap-4">
-            <h3 className="text-lg font-semibold">Search Results:</h3>
-            {schools.map((school) => (
-              <Card key={school.id} className="p-4">
-                <CardTitle className="text-xl">{school.name}</CardTitle>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {school.education_level} - {school.location}
+      {schools.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {schools.map((school) => (
+            <Card key={school.id}>
+              <CardHeader>
+                <CardTitle>{school.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" /> {school.location}
                 </p>
-                {school.description && <p className="mt-2 text-sm">{school.description}</p>}
-                <div className="mt-2 text-sm">
-                  {school.contact_email && <p>Email: {school.contact_email}</p>}
-                  {school.phone_number && <p>Phone: {school.phone_number}</p>}
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                <p className="flex items-center gap-1">
+                  <GraduationCap className="h-4 w-4" /> {school.specialization}
+                </p>
+                <p>{school.description}</p>
+                <p className="font-medium">Contact: {school.contact_email}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      {loading && (
+        <div className="flex justify-center p-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent" />
+        </div>
+      )}
+    </div>
   )
 }
